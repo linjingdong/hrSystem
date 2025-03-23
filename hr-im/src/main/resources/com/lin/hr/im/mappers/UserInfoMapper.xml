@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.im.mappers.UserInfoMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.lin.hr.im.entity.po.UserInfo">
+		<!--用户唯一UUID-->
+		<result column="user_id" property="userId"  />
+		<!--账户-->
+		<result column="account" property="account"  />
+		<!--用户名称-->
+		<result column="username" property="username"  />
+		<!--性别 0-女 1-男-->
+		<result column="sex" property="sex"  />
+		<!--加密后密码-->
+		<result column="password" property="password"  />
+		<!--绑定邮箱-->
+		<result column="email" property="email"  />
+		<!--手机号（加密存储）-->
+		<result column="phone" property="phone"  />
+		<!--用户类型 ENUM('patient','doctor','admin')-->
+		<result column="user_type" property="userType"  />
+		<!--状态-->
+		<result column="status" property="status"  />
+		<!--地区-->
+		<result column="area_name" property="areaName"  />
+		<!--地区编号-->
+		<result column="area_code" property="areaCode"  />
+		<!--✨微信OpenID（加密存储）-->
+		<result column="openid" property="openid"  />
+		<!--✨微信UnionID-->
+		<result column="union_id" property="unionId"  />
+		<!--✨最后登录设备ID-->
+		<result column="last_device_id" property="lastDeviceId"  />
+		<!--创建时间-->
+		<result column="create_time" property="createTime"  />
+		<!--最后离开时间-->
+		<result column="last_off_time" property="lastOffTime"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 u.user_id,u.account,u.username,u.sex,u.password,
+		 u.email,u.phone,u.user_type,u.status,u.area_name,
+		 u.area_code,u.openid,u.union_id,u.last_device_id,u.create_time,
+		 u.last_off_time
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.userId != null and query.userId!=''">
+				 and  u.user_id = #{query.userId}
+			</if>
+			<if test="query.account != null and query.account!=''">
+				 and  u.account = #{query.account}
+			</if>
+			<if test="query.username != null and query.username!=''">
+				 and  u.username = #{query.username}
+			</if>
+			<if test="query.sex != null">
+				 and  u.sex = #{query.sex}
+			</if>
+			<if test="query.password != null and query.password!=''">
+				 and  u.password = #{query.password}
+			</if>
+			<if test="query.email != null and query.email!=''">
+				 and  u.email = #{query.email}
+			</if>
+			<if test="query.phone != null and query.phone!=''">
+				 and  u.phone = #{query.phone}
+			</if>
+			<if test="query.userType != null and query.userType!=''">
+				 and  u.user_type = #{query.userType}
+			</if>
+			<if test="query.status != null">
+				 and  u.status = #{query.status}
+			</if>
+			<if test="query.areaName != null and query.areaName!=''">
+				 and  u.area_name = #{query.areaName}
+			</if>
+			<if test="query.areaCode != null and query.areaCode!=''">
+				 and  u.area_code = #{query.areaCode}
+			</if>
+			<if test="query.openid != null and query.openid!=''">
+				 and  u.openid = #{query.openid}
+			</if>
+			<if test="query.unionId != null and query.unionId!=''">
+				 and  u.union_id = #{query.unionId}
+			</if>
+			<if test="query.lastDeviceId != null and query.lastDeviceId!=''">
+				 and  u.last_device_id = #{query.lastDeviceId}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  u.create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.lastOffTime != null and query.lastOffTime!=''">
+				 <![CDATA[ and  u.last_off_time=str_to_date(#{query.lastOffTime}, '%Y-%m-%d') ]]>
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.userIdFuzzy!= null  and query.userIdFuzzy!=''">
+				 and  u.user_id like concat('%', #{query.userIdFuzzy}, '%')
+			</if>
+			<if test="query.accountFuzzy!= null  and query.accountFuzzy!=''">
+				 and  u.account like concat('%', #{query.accountFuzzy}, '%')
+			</if>
+			<if test="query.usernameFuzzy!= null  and query.usernameFuzzy!=''">
+				 and  u.username like concat('%', #{query.usernameFuzzy}, '%')
+			</if>
+			<if test="query.passwordFuzzy!= null  and query.passwordFuzzy!=''">
+				 and  u.password like concat('%', #{query.passwordFuzzy}, '%')
+			</if>
+			<if test="query.emailFuzzy!= null  and query.emailFuzzy!=''">
+				 and  u.email like concat('%', #{query.emailFuzzy}, '%')
+			</if>
+			<if test="query.phoneFuzzy!= null  and query.phoneFuzzy!=''">
+				 and  u.phone like concat('%', #{query.phoneFuzzy}, '%')
+			</if>
+			<if test="query.userTypeFuzzy!= null  and query.userTypeFuzzy!=''">
+				 and  u.user_type like concat('%', #{query.userTypeFuzzy}, '%')
+			</if>
+			<if test="query.areaNameFuzzy!= null  and query.areaNameFuzzy!=''">
+				 and  u.area_name like concat('%', #{query.areaNameFuzzy}, '%')
+			</if>
+			<if test="query.areaCodeFuzzy!= null  and query.areaCodeFuzzy!=''">
+				 and  u.area_code like concat('%', #{query.areaCodeFuzzy}, '%')
+			</if>
+			<if test="query.openidFuzzy!= null  and query.openidFuzzy!=''">
+				 and  u.openid like concat('%', #{query.openidFuzzy}, '%')
+			</if>
+			<if test="query.unionIdFuzzy!= null  and query.unionIdFuzzy!=''">
+				 and  u.union_id like concat('%', #{query.unionIdFuzzy}, '%')
+			</if>
+			<if test="query.lastDeviceIdFuzzy!= null  and query.lastDeviceIdFuzzy!=''">
+				 and  u.last_device_id like concat('%', #{query.lastDeviceIdFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  u.create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  u.create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.lastOffTimeStart!= null and query.lastOffTimeStart!=''">
+				 <![CDATA[ and  u.last_off_time>=str_to_date(#{query.lastOffTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.lastOffTimeEnd!= null and query.lastOffTimeEnd!=''">
+				 <![CDATA[ and  u.last_off_time< date_sub(str_to_date(#{query.lastOffTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM user_info u <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM user_info u <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.lin.hr.im.entity.po.UserInfo">
+		 INSERT INTO user_info
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.account != null">
+				 account,
+			</if>
+			<if test="bean.username != null">
+				 username,
+			</if>
+			<if test="bean.sex != null">
+				 sex,
+			</if>
+			<if test="bean.password != null">
+				 password,
+			</if>
+			<if test="bean.email != null">
+				 email,
+			</if>
+			<if test="bean.phone != null">
+				 phone,
+			</if>
+			<if test="bean.userType != null">
+				 user_type,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.areaName != null">
+				 area_name,
+			</if>
+			<if test="bean.areaCode != null">
+				 area_code,
+			</if>
+			<if test="bean.openid != null">
+				 openid,
+			</if>
+			<if test="bean.unionId != null">
+				 union_id,
+			</if>
+			<if test="bean.lastDeviceId != null">
+				 last_device_id,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.lastOffTime != null">
+				 last_off_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.account!=null">
+				 #{bean.account},
+			</if>
+			<if test="bean.username!=null">
+				 #{bean.username},
+			</if>
+			<if test="bean.sex!=null">
+				 #{bean.sex},
+			</if>
+			<if test="bean.password!=null">
+				 #{bean.password},
+			</if>
+			<if test="bean.email!=null">
+				 #{bean.email},
+			</if>
+			<if test="bean.phone!=null">
+				 #{bean.phone},
+			</if>
+			<if test="bean.userType!=null">
+				 #{bean.userType},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.areaName!=null">
+				 #{bean.areaName},
+			</if>
+			<if test="bean.areaCode!=null">
+				 #{bean.areaCode},
+			</if>
+			<if test="bean.openid!=null">
+				 #{bean.openid},
+			</if>
+			<if test="bean.unionId!=null">
+				 #{bean.unionId},
+			</if>
+			<if test="bean.lastDeviceId!=null">
+				 #{bean.lastDeviceId},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.lastOffTime!=null">
+				 #{bean.lastOffTime},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.lin.hr.im.entity.po.UserInfo">
+		 INSERT INTO user_info
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.account != null">
+				 account,
+			</if>
+			<if test="bean.username != null">
+				 username,
+			</if>
+			<if test="bean.sex != null">
+				 sex,
+			</if>
+			<if test="bean.password != null">
+				 password,
+			</if>
+			<if test="bean.email != null">
+				 email,
+			</if>
+			<if test="bean.phone != null">
+				 phone,
+			</if>
+			<if test="bean.userType != null">
+				 user_type,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.areaName != null">
+				 area_name,
+			</if>
+			<if test="bean.areaCode != null">
+				 area_code,
+			</if>
+			<if test="bean.openid != null">
+				 openid,
+			</if>
+			<if test="bean.unionId != null">
+				 union_id,
+			</if>
+			<if test="bean.lastDeviceId != null">
+				 last_device_id,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.lastOffTime != null">
+				 last_off_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.account!=null">
+				 #{bean.account},
+			</if>
+			<if test="bean.username!=null">
+				 #{bean.username},
+			</if>
+			<if test="bean.sex!=null">
+				 #{bean.sex},
+			</if>
+			<if test="bean.password!=null">
+				 #{bean.password},
+			</if>
+			<if test="bean.email!=null">
+				 #{bean.email},
+			</if>
+			<if test="bean.phone!=null">
+				 #{bean.phone},
+			</if>
+			<if test="bean.userType!=null">
+				 #{bean.userType},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.areaName!=null">
+				 #{bean.areaName},
+			</if>
+			<if test="bean.areaCode!=null">
+				 #{bean.areaCode},
+			</if>
+			<if test="bean.openid!=null">
+				 #{bean.openid},
+			</if>
+			<if test="bean.unionId!=null">
+				 #{bean.unionId},
+			</if>
+			<if test="bean.lastDeviceId!=null">
+				 #{bean.lastDeviceId},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.lastOffTime!=null">
+				 #{bean.lastOffTime},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.userId!=null">
+				 user_id = VALUES(user_id),
+			</if>
+			<if test="bean.account!=null">
+				 account = VALUES(account),
+			</if>
+			<if test="bean.username!=null">
+				 username = VALUES(username),
+			</if>
+			<if test="bean.sex!=null">
+				 sex = VALUES(sex),
+			</if>
+			<if test="bean.password!=null">
+				 password = VALUES(password),
+			</if>
+			<if test="bean.email!=null">
+				 email = VALUES(email),
+			</if>
+			<if test="bean.phone!=null">
+				 phone = VALUES(phone),
+			</if>
+			<if test="bean.userType!=null">
+				 user_type = VALUES(user_type),
+			</if>
+			<if test="bean.status!=null">
+				 status = VALUES(status),
+			</if>
+			<if test="bean.areaName!=null">
+				 area_name = VALUES(area_name),
+			</if>
+			<if test="bean.areaCode!=null">
+				 area_code = VALUES(area_code),
+			</if>
+			<if test="bean.openid!=null">
+				 openid = VALUES(openid),
+			</if>
+			<if test="bean.unionId!=null">
+				 union_id = VALUES(union_id),
+			</if>
+			<if test="bean.lastDeviceId!=null">
+				 last_device_id = VALUES(last_device_id),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+			<if test="bean.lastOffTime!=null">
+				 last_off_time = VALUES(last_off_time),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.lin.hr.im.entity.po.UserInfo">
+		 INSERT INTO user_info(
+			 user_id,
+			 account,
+			 username,
+			 sex,
+			 password,
+			 email,
+			 phone,
+			 user_type,
+			 status,
+			 area_name,
+			 area_code,
+			 openid,
+			 union_id,
+			 last_device_id,
+			 create_time,
+			 last_off_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.userId},
+				 #{item.account},
+				 #{item.username},
+				 #{item.sex},
+				 #{item.password},
+				 #{item.email},
+				 #{item.phone},
+				 #{item.userType},
+				 #{item.status},
+				 #{item.areaName},
+				 #{item.areaCode},
+				 #{item.openid},
+				 #{item.unionId},
+				 #{item.lastDeviceId},
+				 #{item.createTime},
+				 #{item.lastOffTime}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.lin.hr.im.entity.po.UserInfo">
+		 INSERT INTO user_info(
+			 user_id,
+			 account,
+			 username,
+			 sex,
+			 password,
+			 email,
+			 phone,
+			 user_type,
+			 status,
+			 area_name,
+			 area_code,
+			 openid,
+			 union_id,
+			 last_device_id,
+			 create_time,
+			 last_off_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.userId},
+				 #{item.account},
+				 #{item.username},
+				 #{item.sex},
+				 #{item.password},
+				 #{item.email},
+				 #{item.phone},
+				 #{item.userType},
+				 #{item.status},
+				 #{item.areaName},
+				 #{item.areaCode},
+				 #{item.openid},
+				 #{item.unionId},
+				 #{item.lastDeviceId},
+				 #{item.createTime},
+				 #{item.lastOffTime}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			user_id = VALUES(user_id),
+			account = VALUES(account),
+			username = VALUES(username),
+			sex = VALUES(sex),
+			password = VALUES(password),
+			email = VALUES(email),
+			phone = VALUES(phone),
+			user_type = VALUES(user_type),
+			status = VALUES(status),
+			area_name = VALUES(area_name),
+			area_code = VALUES(area_code),
+			openid = VALUES(openid),
+			union_id = VALUES(union_id),
+			last_device_id = VALUES(last_device_id),
+			create_time = VALUES(create_time),
+			last_off_time = VALUES(last_off_time)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.lin.hr.im.entity.query.UserInfoQuery">
+		 UPDATE user_info u
+ 		 <set> 
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.account != null">
+				 account = #{bean.account},
+			</if>
+			<if test="bean.username != null">
+				 username = #{bean.username},
+			</if>
+			<if test="bean.sex != null">
+				 sex = #{bean.sex},
+			</if>
+			<if test="bean.password != null">
+				 password = #{bean.password},
+			</if>
+			<if test="bean.email != null">
+				 email = #{bean.email},
+			</if>
+			<if test="bean.phone != null">
+				 phone = #{bean.phone},
+			</if>
+			<if test="bean.userType != null">
+				 user_type = #{bean.userType},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.areaName != null">
+				 area_name = #{bean.areaName},
+			</if>
+			<if test="bean.areaCode != null">
+				 area_code = #{bean.areaCode},
+			</if>
+			<if test="bean.openid != null">
+				 openid = #{bean.openid},
+			</if>
+			<if test="bean.unionId != null">
+				 union_id = #{bean.unionId},
+			</if>
+			<if test="bean.lastDeviceId != null">
+				 last_device_id = #{bean.lastDeviceId},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.lastOffTime != null">
+				 last_off_time = #{bean.lastOffTime},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete u from user_info u
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据UserId修改-->
+	<update id="updateByUserId" parameterType="com.lin.hr.im.entity.po.UserInfo">
+		 UPDATE user_info
+ 		 <set> 
+			<if test="bean.account != null">
+				 account = #{bean.account},
+			</if>
+			<if test="bean.username != null">
+				 username = #{bean.username},
+			</if>
+			<if test="bean.sex != null">
+				 sex = #{bean.sex},
+			</if>
+			<if test="bean.password != null">
+				 password = #{bean.password},
+			</if>
+			<if test="bean.email != null">
+				 email = #{bean.email},
+			</if>
+			<if test="bean.phone != null">
+				 phone = #{bean.phone},
+			</if>
+			<if test="bean.userType != null">
+				 user_type = #{bean.userType},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.areaName != null">
+				 area_name = #{bean.areaName},
+			</if>
+			<if test="bean.areaCode != null">
+				 area_code = #{bean.areaCode},
+			</if>
+			<if test="bean.openid != null">
+				 openid = #{bean.openid},
+			</if>
+			<if test="bean.unionId != null">
+				 union_id = #{bean.unionId},
+			</if>
+			<if test="bean.lastDeviceId != null">
+				 last_device_id = #{bean.lastDeviceId},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.lastOffTime != null">
+				 last_off_time = #{bean.lastOffTime},
+			</if>
+ 		 </set>
+ 		 where user_id=#{userId}
+	</update>
+
+	<!-- 根据UserId删除-->
+	<delete id="deleteByUserId">
+		delete from user_info where user_id=#{userId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByUserId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from user_info u where user_id=#{userId}
+	</select>
+
+	<!-- 根据Username修改-->
+	<update id="updateByUsername" parameterType="com.lin.hr.im.entity.po.UserInfo">
+		 UPDATE user_info
+ 		 <set> 
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.account != null">
+				 account = #{bean.account},
+			</if>
+			<if test="bean.sex != null">
+				 sex = #{bean.sex},
+			</if>
+			<if test="bean.password != null">
+				 password = #{bean.password},
+			</if>
+			<if test="bean.email != null">
+				 email = #{bean.email},
+			</if>
+			<if test="bean.phone != null">
+				 phone = #{bean.phone},
+			</if>
+			<if test="bean.userType != null">
+				 user_type = #{bean.userType},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.areaName != null">
+				 area_name = #{bean.areaName},
+			</if>
+			<if test="bean.areaCode != null">
+				 area_code = #{bean.areaCode},
+			</if>
+			<if test="bean.openid != null">
+				 openid = #{bean.openid},
+			</if>
+			<if test="bean.unionId != null">
+				 union_id = #{bean.unionId},
+			</if>
+			<if test="bean.lastDeviceId != null">
+				 last_device_id = #{bean.lastDeviceId},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.lastOffTime != null">
+				 last_off_time = #{bean.lastOffTime},
+			</if>
+ 		 </set>
+ 		 where username=#{username}
+	</update>
+
+	<!-- 根据Username删除-->
+	<delete id="deleteByUsername">
+		delete from user_info where username=#{username}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByUsername" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from user_info u where username=#{username}
+	</select>
+
+	<!-- 根据Email修改-->
+	<update id="updateByEmail" parameterType="com.lin.hr.im.entity.po.UserInfo">
+		 UPDATE user_info
+ 		 <set> 
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.account != null">
+				 account = #{bean.account},
+			</if>
+			<if test="bean.username != null">
+				 username = #{bean.username},
+			</if>
+			<if test="bean.sex != null">
+				 sex = #{bean.sex},
+			</if>
+			<if test="bean.password != null">
+				 password = #{bean.password},
+			</if>
+			<if test="bean.phone != null">
+				 phone = #{bean.phone},
+			</if>
+			<if test="bean.userType != null">
+				 user_type = #{bean.userType},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.areaName != null">
+				 area_name = #{bean.areaName},
+			</if>
+			<if test="bean.areaCode != null">
+				 area_code = #{bean.areaCode},
+			</if>
+			<if test="bean.openid != null">
+				 openid = #{bean.openid},
+			</if>
+			<if test="bean.unionId != null">
+				 union_id = #{bean.unionId},
+			</if>
+			<if test="bean.lastDeviceId != null">
+				 last_device_id = #{bean.lastDeviceId},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.lastOffTime != null">
+				 last_off_time = #{bean.lastOffTime},
+			</if>
+ 		 </set>
+ 		 where email=#{email}
+	</update>
+
+	<!-- 根据Email删除-->
+	<delete id="deleteByEmail">
+		delete from user_info where email=#{email}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByEmail" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from user_info u where email=#{email}
+	</select>
+
+	<!-- 根据手机号获取用户信息 -->
+    <select id="selectByAccount" resultMap="base_result_map">
+        select
+        <include refid="base_column_list"/>
+        from user_info u where account=#{account} and user_type=#{userType}
+    </select>
+
+</mapper>
