@@ -12,8 +12,8 @@ import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.ResponseCodeEnum;
 import com.lin.hr.common.exception.BusinessException;
 import com.lin.hr.im.entity.config.AppConfig;
-import com.lin.hr.im.entity.enums.UserStatusEnum;
-import com.lin.hr.im.entity.enums.UserTypeEnum;
+import com.lin.hr.common.enums.user.UserStatusEnum;
+import com.lin.hr.common.enums.user.UserTypeEnum;
 import com.lin.hr.im.entity.vo.account.UserInfoVo;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +29,7 @@ import com.lin.hr.im.entity.query.SimplePage;
 import com.lin.hr.im.mappers.UserInfoMapper;
 import com.lin.hr.im.service.UserInfoService;
 import com.lin.hr.common.utils.StringTools;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -195,11 +196,15 @@ public class UserInfoServiceImpl implements UserInfoService {
         return this.userInfoMapper.deleteByEmail(email);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void register(String phone, String username, String password, Integer userType) {
         UserInfo userInfo = this.userInfoMapper.selectByAccount(phone, Objects.requireNonNull(UserTypeEnum.getByCode(userType)).getValue());
         if (null != userInfo) {
             throw new BusinessException(ResponseCodeEnum.CODE_600.getCode(), "该手机号关联的用户信息已经存在！");
+        }
+        if (null == username || username.isEmpty()) {
+            username = "匿名用户";
         }
 
         userInfo = new UserInfo();

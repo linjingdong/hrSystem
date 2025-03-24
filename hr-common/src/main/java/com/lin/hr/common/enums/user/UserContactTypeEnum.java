@@ -1,4 +1,4 @@
-package com.lin.hr.im.entity.enums;
+package com.lin.hr.common.enums.user;
 
 
 import lombok.Getter;

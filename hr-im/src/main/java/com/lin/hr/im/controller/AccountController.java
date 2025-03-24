@@ -1,5 +1,6 @@
 package com.lin.hr.im.controller;
 
+import com.lin.hr.common.component.RedisComponent;
 import com.lin.hr.common.constants.RedisKeyConstant;
 import com.lin.hr.common.constants.TimeConstant;
 import com.lin.hr.common.dto.TokenUserInfoDto;
@@ -17,10 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -43,6 +41,8 @@ public class AccountController extends ABaseController {
     private RedisUtils redisUtil;
     @Autowired
     private UserInfoService userInfoService;
+    @Autowired
+    private RedisComponent redisComponent;
 
     @PostMapping("/checkCode")
     public ResponseVO<Object> checkCode() {
@@ -62,32 +62,37 @@ public class AccountController extends ABaseController {
     @PostMapping("/register")
     public ResponseVO<Object> register(@RequestBody @Valid RegisterReqVo registerReqVo) {
         try {
-            if (!registerReqVo.getCheckCode().equalsIgnoreCase(redisUtil.get(RedisKeyConstant.REDIS_KEY_CHECK_CODE + registerReqVo.getCheckCodeKey()).toString())) {
-                throw new BusinessException(ResponseCodeEnum.CODE_600.getCode(), "图形验证码不正确！");
-            }
+            validCheckCode(registerReqVo.getCheckCodeKey(), registerReqVo.getCheckCode());
             userInfoService.register(registerReqVo.getPhone(), registerReqVo.getUsername(), registerReqVo.getPassword(), registerReqVo.getUserType());
         } finally {
             redisUtil.delete(RedisKeyConstant.REDIS_KEY_CHECK_CODE + registerReqVo.getCheckCodeKey());
         }
-        return getSuccessResponseVO("");
+        return getSuccessResponseVO("注册成功！");
     }
 
     @PostMapping("/login")
     public ResponseVO<Object> login(@RequestBody @Valid LoginReqVo loginReqVo) {
         try {
-            if (!loginReqVo.getCheckCode().equalsIgnoreCase(redisUtil.get(RedisKeyConstant.REDIS_KEY_CHECK_CODE + loginReqVo.getCheckCodeKey()).toString())) {
-                throw new BusinessException(ResponseCodeEnum.CODE_600.getCode(), "图形验证码不正确！");
-            }
-            UserInfoVo userInfoVo = userInfoService.login(
-                    loginReqVo.getAccount(),
-                    loginReqVo.getPassword(),
-                    loginReqVo.getUserType()
-            );
-
-            // TODO
-            return getSuccessResponseVO(null);
+            validCheckCode(loginReqVo.getCheckCodeKey(), loginReqVo.getCheckCode());
+            UserInfoVo userInfoVo = userInfoService.login(loginReqVo.getAccount(), loginReqVo.getPassword(), loginReqVo.getUserType());
+            return getSuccessResponseVO(userInfoVo);
         } finally {
             redisUtil.delete(RedisKeyConstant.REDIS_KEY_CHECK_CODE + loginReqVo.getCheckCodeKey());
+        }
+    }
+
+    @GetMapping("/getSysSetting")
+    public ResponseVO<Object> getSysSetting() {
+        return getSuccessResponseVO(redisComponent.getSysSetting());
+    }
+
+    private void validCheckCode(String checkCodeKey, String checkCode) {
+        Object checkCodeObj = redisUtil.get(RedisKeyConstant.REDIS_KEY_CHECK_CODE + checkCodeKey);
+        if (checkCodeObj == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600.getCode(), "请重新获取图形验证码！");
+        }
+        if (!checkCode.equalsIgnoreCase(checkCodeObj.toString())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600.getCode(), "图形验证码不正确！");
         }
     }
 }

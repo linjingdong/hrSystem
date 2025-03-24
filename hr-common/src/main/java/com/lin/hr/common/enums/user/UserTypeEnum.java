@@ -1,6 +1,8 @@
-package com.lin.hr.im.entity.enums;
+package com.lin.hr.common.enums.user;
 
 import lombok.Getter;
+
+import java.util.Objects;
 
 /**
  * @author Lin_jd
@@ -22,11 +24,11 @@ public enum UserTypeEnum {
     }
 
     public static UserTypeEnum getByCode(Integer code) {
-        if (code != null) {
+        if (code == null) {
             return null;
         } else {
             for (UserTypeEnum userType : UserTypeEnum.values()) {
-                if (userType.getCode().equals(code)) {
+                if (Objects.equals(userType.getCode(), code)) {
                     return userType;
                 }
             }

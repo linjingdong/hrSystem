@@ -4,6 +4,7 @@ import com.lin.hr.common.utils.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -16,6 +17,7 @@ import java.util.logging.Logger;
  * @version V1.0.0
  * @since 2025/3/23 16:39
  **/
+
 @Component("initRun")
 public class InitRun implements ApplicationRunner {
 
@@ -33,7 +35,11 @@ public class InitRun implements ApplicationRunner {
             redisUtil.get("init");
             log.info("服务器启动成功...");
         } catch (SQLException e) {
-            log.info("启动数据库失败...");
+            log.info("数据库配置错误，请检查数据库配置...");
+        } catch (RedisConnectionFailureException e ) {
+            log.info("redis配置错误，请检查redis配置...");
+        } catch (Exception e ) {
+            log.info("服务启动失败...");
         }
     }
 }

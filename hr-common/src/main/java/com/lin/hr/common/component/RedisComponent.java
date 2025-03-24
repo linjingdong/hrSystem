@@ -2,6 +2,7 @@ package com.lin.hr.common.component;
 
 import com.lin.hr.common.constants.RedisKeyConstant;
 import com.lin.hr.common.constants.TimeConstant;
+import com.lin.hr.common.dto.SysSettingDto;
 import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.utils.RedisUtils;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public class RedisComponent {
      * @return 心跳
      */
     public Long getUserHeartBeat(String userId) {
-        return Long.parseLong(redisUtils.get(RedisKeyConstant.REDIS_KEY_WS_USER_HEART_BEAT + userId).toString());
+        return (Long) redisUtils.get(RedisKeyConstant.REDIS_KEY_WS_USER_HEART_BEAT + userId);
     }
 
     /**
@@ -37,5 +38,13 @@ public class RedisComponent {
 
         // 缓存userId - token
         redisUtils.setEx(RedisKeyConstant.REDIS_KEY_WS_TOKEN_USERID + tokenUserInfo.getUserId(), tokenUserInfo.getToken(), TimeConstant.REDIS_TIME_EXPIRES_DAY * 2);
+    }
+
+    /**
+     * 获取系统设置缓存
+     */
+    public SysSettingDto getSysSetting() {
+        SysSettingDto sysSettingDto = (SysSettingDto) redisUtils.get(RedisKeyConstant.REDIS_KEY_SYS_SETTING);
+        return sysSettingDto == null ? new SysSettingDto() : sysSettingDto;
     }
 }
