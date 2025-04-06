@@ -80,14 +80,22 @@
 
 	<!-- 查询集合-->
 	<select id="selectList" resultMap="base_result_map" >
-		 SELECT <include refid="base_column_list" /> FROM user_contact u <include refid="query_condition" />
-		 <if test="query.orderBy!=null">
-			 order by ${query.orderBy}
-		 </if>
-		 <if test="query.simplePage!=null">
-			 limit #{query.simplePage.start},#{query.simplePage.end}
-		 </if>
-	</select>
+        SELECT u.*
+        <if test="query.queryUserInfo">
+            , i.username contactName, i.sex sex
+        </if>
+        FROM user_contact as u
+		<if test="query.queryUserInfo">
+			LEFT JOIN user_info i ON u.user_id = i.user_id
+		</if>
+        <include refid="query_condition"/>
+        <if test="query.orderBy!=null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage!=null">
+            limit #{query.simplePage.start},#{query.simplePage.end}
+        </if>
+    </select>
 
 	<!-- 查询数量-->
 	<select id="selectCount" resultType="java.lang.Integer" >

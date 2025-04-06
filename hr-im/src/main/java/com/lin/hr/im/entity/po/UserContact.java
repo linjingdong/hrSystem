@@ -4,6 +4,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lin.hr.common.enums.DateTimePatternEnum;
 import com.lin.hr.common.utils.DateUtil;
+import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 /**
  * 联系人
  */
+@Data
 public class UserContact implements Serializable {
 
 
@@ -49,54 +51,15 @@ public class UserContact implements Serializable {
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date lastUpdateTime;
 
+	/**
+	 * 用户名称
+	 */
+	private String contactName;
 
-	public void setUserId(String userId){
-		this.userId = userId;
-	}
-
-	public String getUserId(){
-		return this.userId;
-	}
-
-	public void setContactId(String contactId){
-		this.contactId = contactId;
-	}
-
-	public String getContactId(){
-		return this.contactId;
-	}
-
-	public void setContactType(Integer contactType){
-		this.contactType = contactType;
-	}
-
-	public Integer getContactType(){
-		return this.contactType;
-	}
-
-	public void setCreateTime(Date createTime){
-		this.createTime = createTime;
-	}
-
-	public Date getCreateTime(){
-		return this.createTime;
-	}
-
-	public void setStatus(Integer status){
-		this.status = status;
-	}
-
-	public Integer getStatus(){
-		return this.status;
-	}
-
-	public void setLastUpdateTime(Date lastUpdateTime){
-		this.lastUpdateTime = lastUpdateTime;
-	}
-
-	public Date getLastUpdateTime(){
-		return this.lastUpdateTime;
-	}
+	/**
+	 * 用户性别
+	 */
+	private String sex;
 
 	@Override
 	public String toString (){

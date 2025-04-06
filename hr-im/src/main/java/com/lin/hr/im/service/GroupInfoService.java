@@ -6,7 +6,10 @@ import java.util.List;
 import com.lin.hr.im.entity.query.GroupInfoQuery;
 import com.lin.hr.im.entity.po.GroupInfo;
 import com.lin.hr.common.vo.PaginationResultVO;
+import com.lin.hr.im.entity.vo.gourp.GroupInfoVo;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotEmpty;
 
 
 /**
@@ -75,4 +78,11 @@ public interface GroupInfoService {
 	 * 保存群组
 	 */
 	void saveGroup(GroupInfo groupInfo, MultipartFile avatarFile, MultipartFile avatarCover) throws IOException;
+
+	GroupInfo getGroupInfo(String userId, String groupId);
+
+	/**
+	 * 获取会话群组详情信息
+	 */
+	GroupInfoVo getGroupInfo4Chat(String userId, @NotEmpty String groupId);
 }

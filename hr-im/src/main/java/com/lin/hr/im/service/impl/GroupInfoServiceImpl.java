@@ -12,6 +12,7 @@ import com.lin.hr.common.constants.FileConstant;
 import com.lin.hr.common.dto.SysSettingDto;
 import com.lin.hr.common.enums.PageSize;
 import com.lin.hr.common.enums.ResponseCodeEnum;
+import com.lin.hr.common.enums.group.GroupStatusEnum;
 import com.lin.hr.common.enums.user.UserContactStatusEnum;
 import com.lin.hr.common.enums.user.UserContactTypeEnum;
 import com.lin.hr.common.exception.BusinessException;
@@ -19,7 +20,10 @@ import com.lin.hr.common.utils.StringTools;
 import com.lin.hr.common.config.AppConfig;
 import com.lin.hr.im.entity.po.UserContact;
 import com.lin.hr.im.entity.query.UserContactQuery;
+import com.lin.hr.im.entity.vo.gourp.GroupInfoVo;
 import com.lin.hr.im.mappers.UserContactMapper;
+import com.lin.hr.im.service.UserContactService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
@@ -46,7 +50,11 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     @Resource
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
     @Resource
+    private UserContactService userContactService;
+    @Resource
     private AppConfig appConfig;
+    @Autowired
+    private UserContactApplyServiceImpl userContactApplyService;
 
     /**
      * 根据条件查询列表
@@ -209,5 +217,45 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
         avatarFile.transferTo(new File(filePath));
         avatarCover.transferTo(new File(filePath + FileConstant.COVER_IMAGE_SUFFIX));
+    }
+
+    @Override
+    public GroupInfo getGroupInfo(String userId, String groupId) {
+        GroupInfo groupInfo = getGroupInfoCommon(userId, groupId);
+        UserContactQuery userContactQuery = new UserContactQuery();
+        userContactQuery.setContactId(groupId);
+        Integer memberCount = userContactService.findCountByParam(userContactQuery);
+        groupInfo.setMemberCount(memberCount);
+        return groupInfo;
+    }
+
+    @Override
+    public GroupInfoVo getGroupInfo4Chat(String userId, String groupId) {
+        GroupInfo groupInfoCommon = getGroupInfoCommon(userId, groupId);
+
+        // 获取用户关联群组信息
+        UserContactQuery userContactQuery = new UserContactQuery();
+        userContactQuery.setContactId(groupId);
+        userContactQuery.setQueryUserInfo(true);
+        userContactQuery.setOrderBy("create_time asc");
+        userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+        List<UserContact> userContactList = userContactService.findListByParam(userContactQuery);
+
+        GroupInfoVo groupInfoVo = new GroupInfoVo();
+        groupInfoVo.setGroupInfo(groupInfoCommon);
+        groupInfoVo.setUserContactList(userContactList);
+        return groupInfoVo;
+    }
+
+    private GroupInfo getGroupInfoCommon(String userId, String groupId) {
+        UserContact userContact = userContactService.getUserContactByUserIdAndContactId(userId, groupId);
+        if (null == userContact || !UserContactStatusEnum.FRIEND.getStatus().equals(userContact.getStatus())) {
+            throw new BusinessException("您不在群聊或者群聊不存在或已解散");
+        }
+        GroupInfo groupInfo = getGroupInfoByGroupId(groupId);
+        if (null == groupInfo || !GroupStatusEnum.NORMAL.getStatus().equals(groupInfo.getStatus())) {
+            throw new BusinessException("群聊不存在或已解散");
+        }
+        return groupInfo;
     }
 }

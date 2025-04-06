@@ -7,20 +7,16 @@ import com.lin.hr.common.vo.ResponseVO;
 import com.lin.hr.im.entity.po.GroupInfo;
 import com.lin.hr.im.entity.query.GroupInfoQuery;
 import com.lin.hr.im.service.GroupInfoService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Controller
@@ -53,7 +49,7 @@ public class GroupInfoController extends ABaseController {
     }
 
     @GlobalInterceptor
-    @PostMapping("loadMyGroup")
+    @PostMapping("/loadMyGroup")
     public ResponseVO<Object> loadMyGroup() {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
         GroupInfoQuery groupInfoQuery = new GroupInfoQuery();
@@ -61,5 +57,19 @@ public class GroupInfoController extends ABaseController {
         groupInfoQuery.setOrderBy("create_time");
         List<GroupInfo> groupInfos = groupInfoService.findListByParam(groupInfoQuery);
         return getSuccessResponseVO(groupInfos);
+    }
+
+    @GlobalInterceptor
+    @PostMapping("/getGroupInfo")
+    public ResponseVO<Object> getGroupInfo(@NotEmpty String groupId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        return getSuccessResponseVO(groupInfoService.getGroupInfo(tokenUserInfo.getUserId(),groupId));
+    }
+
+    @GlobalInterceptor
+    @PostMapping("/getGroupInfo4Chat")
+    public ResponseVO<Object> getGroupInfo4Chat(@NotEmpty String groupId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        return getSuccessResponseVO(groupInfoService.getGroupInfo4Chat(tokenUserInfo.getUserId(),groupId));
     }
 }

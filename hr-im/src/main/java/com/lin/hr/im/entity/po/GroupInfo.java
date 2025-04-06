@@ -36,6 +36,11 @@ public class GroupInfo implements Serializable {
 	private String groupOwnerId;
 
 	/**
+	 * 群人数
+	 */
+	private Integer memberCount;
+
+	/**
 	 * 创建时间
 	 */
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
