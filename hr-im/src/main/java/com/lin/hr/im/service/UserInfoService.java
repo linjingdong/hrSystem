@@ -2,10 +2,9 @@ package com.lin.hr.im.service;
 
 import java.util.List;
 
-import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.im.entity.query.UserInfoQuery;
 import com.lin.hr.im.entity.po.UserInfo;
-import com.lin.hr.im.entity.vo.PaginationResultVO;
+import com.lin.hr.common.vo.PaginationResultVO;
 import com.lin.hr.im.entity.vo.account.UserInfoVo;
 
 

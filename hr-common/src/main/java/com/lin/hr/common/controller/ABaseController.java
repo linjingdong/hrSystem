@@ -1,14 +1,26 @@
-package com.lin.hr.im.controller;
+package com.lin.hr.common.controller;
+
+import com.lin.hr.common.config.ThreadLocalConfig;
+import com.lin.hr.common.constants.RedisKeyConstant;
+import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.ResponseCodeEnum;
-import com.lin.hr.im.entity.vo.ResponseVO;
 import com.lin.hr.common.exception.BusinessException;
+import com.lin.hr.common.utils.RedisUtils;
+import com.lin.hr.common.vo.ResponseVO;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 
 public class ABaseController {
+    private static final ThreadLocal<String> threadLocal = new ThreadLocal<>();
 
     protected static final String STATIC_SUCCESS = "success";
 
     protected static final String STATIC_ERROR = "error";
+
+    @Resource
+    private RedisUtils<Object> redisUtils;
 
     protected <T> ResponseVO<T> getSuccessResponseVO(T t) {
         ResponseVO<T> responseVO = new ResponseVO<>();
@@ -39,5 +51,13 @@ public class ABaseController {
         vo.setInfo(ResponseCodeEnum.CODE_500.getMsg());
         vo.setData(t);
         return vo;
+    }
+
+    /**
+     * 获取请求头token
+     */
+    protected TokenUserInfoDto getTokenUserInfo() {
+        String token = ThreadLocalConfig.getToken();
+        return (TokenUserInfoDto) redisUtils.get(RedisKeyConstant.REDIS_KEY_WS_TOKEN + token);
     }
 }

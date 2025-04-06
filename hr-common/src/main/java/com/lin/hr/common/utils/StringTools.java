@@ -61,6 +61,10 @@ public class StringTools {
         return "U" + getRandomNumber(AccountConstant.LENGTH_11);
     }
 
+    public static String getGroupId() {
+        return "G" + getRandomNumber(AccountConstant.LENGTH_11);
+    }
+
     public static String getRandomNumber(Integer count) {
         return RandomStringUtils.random(count, false, true);
     }

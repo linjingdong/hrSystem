@@ -1,6 +1,7 @@
 package com.lin.hr.im.controller;
+import com.lin.hr.common.controller.ABaseController;
 import com.lin.hr.common.enums.ResponseCodeEnum;
-import com.lin.hr.im.entity.vo.ResponseVO;
+import com.lin.hr.common.vo.ResponseVO;
 import com.lin.hr.common.exception.BusinessException;
 
 

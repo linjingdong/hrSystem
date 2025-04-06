@@ -1,4 +1,4 @@
-package com.lin.hr.im.entity.vo;
+package com.lin.hr.common.vo;
 import java.util.ArrayList;
 import java.util.List;
 
