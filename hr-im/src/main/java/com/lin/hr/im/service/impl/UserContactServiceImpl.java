@@ -312,6 +312,6 @@ public class UserContactServiceImpl implements UserContactService {
         if (null != userContact) {
             userInfoVo.setContactStatus(UserContactStatusEnum.FRIEND.getStatus());
         }
-        return null;
+        return userInfoVo;
     }
 }
