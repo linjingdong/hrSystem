@@ -38,7 +38,7 @@ public class UserContactQuery extends BaseParam {
     private String createTimeEnd;
 
     /**
-     * 状态 0:非好友 1:好友 2:已删除好友 3:被好友拉黑 4:已拉黑好友
+     * 状态 0:非好友 1:好友 2:已删除好友 3:被好友删除 4:已拉黑好友 5：被好友拉黑 6：首次被好友拉黑
      */
     private Integer status;
 
@@ -50,6 +50,28 @@ public class UserContactQuery extends BaseParam {
     private String lastUpdateTimeStart;
 
     private String lastUpdateTimeEnd;
+    /**
+     * 是否搜索群聊信息
+     */
+    private boolean queryGroupInfo;
 
+    /**
+     * 是否搜索用户信息
+     */
     private boolean queryUserInfo;
+
+    /**
+     * 是否搜索联系人信息
+     */
+    private boolean queryContactInfo;
+
+    /**
+     * 是否排除我的群组
+     */
+    private boolean excludeMyGroup;
+
+    /**
+     *
+     */
+    private Integer[] statusArray;
 }

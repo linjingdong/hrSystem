@@ -37,6 +37,15 @@ public enum UserContactTypeEnum {
         }
     }
 
+    public static UserContactTypeEnum getByType(String type) {
+        for (UserContactTypeEnum userContactType : UserContactTypeEnum.values()) {
+            if (userContactType.getType().equals(Integer.parseInt(type))) {
+                return userContactType;
+            }
+        }
+        return null;
+    }
+
     public static UserContactTypeEnum getByPrefix(String prefix) {
         try {
             if (StringUtils.isEmpty(prefix) || prefix.trim().isEmpty()) {

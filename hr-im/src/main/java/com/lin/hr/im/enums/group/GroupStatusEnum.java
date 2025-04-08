@@ -1,4 +1,4 @@
-package com.lin.hr.common.enums.group;
+package com.lin.hr.im.enums.group;
 
 import lombok.Getter;
 

@@ -2,9 +2,15 @@ package com.lin.hr.im.service;
 
 import java.util.List;
 
+import com.lin.hr.common.dto.TokenUserInfoDto;
+import com.lin.hr.im.entity.dto.UserContactSearchResultDto;
 import com.lin.hr.im.entity.query.UserContactQuery;
 import com.lin.hr.im.entity.po.UserContact;
 import com.lin.hr.common.vo.PaginationResultVO;
+import com.lin.hr.im.entity.vo.account.UserInfoVo;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -69,4 +75,21 @@ public interface UserContactService {
 	 */
 	Integer deleteUserContactByUserIdAndContactId(String userId,String contactId);
 
+    UserContactSearchResultDto searchContact(String userId, @NotBlank String contactId);
+
+	/**
+	 * 申请好友
+	 * @return 加入类型：
+	 */
+	Integer applyAdd(TokenUserInfoDto tokenUserInfo, @NotBlank String contactId, String applyInfo);
+
+	/**
+	 * 获取联系人列表
+	 */
+	List<UserContact> loadContact(String userId, @NotNull String contactType);
+
+	/**
+	 * 获取联系人信息
+	 */
+	UserInfoVo getContactInfo(String userId, @NotNull String contactId);
 }

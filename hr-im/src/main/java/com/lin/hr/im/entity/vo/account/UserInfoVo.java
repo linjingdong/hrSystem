@@ -100,5 +100,5 @@ public class UserInfoVo implements Serializable {
 
     private Boolean admin;
 
-    private String contactStatus;
+    private Integer contactStatus;
 }

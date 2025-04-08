@@ -10,7 +10,7 @@
 		<!--账户-->
 		<result column="account" property="account"  />
 		<!--用户名称-->
-		<result column="contactName" property="contactName"  />
+		<result column="username" property="username"  />
 		<!--性别 0-女 1-男-->
 		<result column="sex" property="sex"  />
 		<!--加密后密码-->
@@ -42,7 +42,7 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="base_column_list">
-		 u.user_id,u.account,u.contactName,u.sex,u.password,
+		 u.user_id,u.account,u.username,u.sex,u.password,
 		 u.email,u.phone,u.user_type,u.status,u.area_name,
 		 u.area_code,u.openid,u.union_id,u.last_device_id,u.create_time,
 		 u.last_off_time
@@ -55,8 +55,8 @@
 			<if test="query.account != null and query.account!=''">
 				 and  u.account = #{query.account}
 			</if>
-			<if test="query.contactName != null and query.contactName!=''">
-				 and  u.contactName = #{query.contactName}
+			<if test="query.username != null and query.username!=''">
+				 and  u.username = #{query.username}
 			</if>
 			<if test="query.sex != null">
 				 and  u.sex = #{query.sex}
@@ -116,7 +116,7 @@
 				 and  u.account like concat('%', #{query.accountFuzzy}, '%')
 			</if>
 			<if test="query.usernameFuzzy!= null  and query.usernameFuzzy!=''">
-				 and  u.contactName like concat('%', #{query.usernameFuzzy}, '%')
+				 and  u.username like concat('%', #{query.usernameFuzzy}, '%')
 			</if>
 			<if test="query.passwordFuzzy!= null  and query.passwordFuzzy!=''">
 				 and  u.password like concat('%', #{query.passwordFuzzy}, '%')
@@ -186,8 +186,8 @@
 			<if test="bean.account != null">
 				 account,
 			</if>
-			<if test="bean.contactName != null">
-				 contactName,
+			<if test="bean.username != null">
+				 username,
 			</if>
 			<if test="bean.sex != null">
 				 sex,
@@ -236,8 +236,8 @@
 			<if test="bean.account!=null">
 				 #{bean.account},
 			</if>
-			<if test="bean.contactName!=null">
-				 #{bean.contactName},
+			<if test="bean.username!=null">
+				 #{bean.username},
 			</if>
 			<if test="bean.sex!=null">
 				 #{bean.sex},
@@ -291,8 +291,8 @@
 			<if test="bean.account != null">
 				 account,
 			</if>
-			<if test="bean.contactName != null">
-				 contactName,
+			<if test="bean.username != null">
+				username,
 			</if>
 			<if test="bean.sex != null">
 				 sex,
@@ -341,8 +341,8 @@
 			<if test="bean.account!=null">
 				 #{bean.account},
 			</if>
-			<if test="bean.contactName!=null">
-				 #{bean.contactName},
+			<if test="bean.username!=null">
+				 #{bean.username},
 			</if>
 			<if test="bean.sex!=null">
 				 #{bean.sex},
@@ -392,8 +392,8 @@
 			<if test="bean.account!=null">
 				 account = VALUES(account),
 			</if>
-			<if test="bean.contactName!=null">
-				 contactName = VALUES(contactName),
+			<if test="bean.username!=null">
+				 username = VALUES(username),
 			</if>
 			<if test="bean.sex!=null">
 				 sex = VALUES(sex),
@@ -442,7 +442,7 @@
 		 INSERT INTO user_info(
 			 user_id,
 			 account,
-			 contactName,
+			 username,
 			 sex,
 			 password,
 			 email,
@@ -461,7 +461,7 @@
 			 (
 				 #{item.userId},
 				 #{item.account},
-				 #{item.contactName},
+				 #{item.username},
 				 #{item.sex},
 				 #{item.password},
 				 #{item.email},
@@ -484,7 +484,7 @@
 		 INSERT INTO user_info(
 			 user_id,
 			 account,
-			 contactName,
+			 username,
 			 sex,
 			 password,
 			 email,
@@ -503,7 +503,7 @@
 			 (
 				 #{item.userId},
 				 #{item.account},
-				 #{item.contactName},
+				 #{item.username},
 				 #{item.sex},
 				 #{item.password},
 				 #{item.email},
@@ -522,7 +522,7 @@
 			on DUPLICATE key update 
 			user_id = VALUES(user_id),
 			account = VALUES(account),
-			contactName = VALUES(contactName),
+			username = VALUES(username),
 			sex = VALUES(sex),
 			password = VALUES(password),
 			email = VALUES(email),
@@ -548,8 +548,8 @@
 			<if test="bean.account != null">
 				 account = #{bean.account},
 			</if>
-			<if test="bean.contactName != null">
-				 contactName = #{bean.contactName},
+			<if test="bean.username != null">
+				 username = #{bean.username},
 			</if>
 			<if test="bean.sex != null">
 				 sex = #{bean.sex},
@@ -607,8 +607,8 @@
 			<if test="bean.account != null">
 				 account = #{bean.account},
 			</if>
-			<if test="bean.contactName != null">
-				 contactName = #{bean.contactName},
+			<if test="bean.username != null">
+				 username = #{bean.username},
 			</if>
 			<if test="bean.sex != null">
 				 sex = #{bean.sex},
@@ -713,17 +713,17 @@
 				 last_off_time = #{bean.lastOffTime},
 			</if>
  		 </set>
- 		 where contactName=#{contactName}
+ 		 where username=#{username}
 	</update>
 
 	<!-- 根据Username删除-->
 	<delete id="deleteByUsername">
-		delete from user_info where contactName=#{contactName}
+		delete from user_info where username=#{username}
 	</delete>
 
 	<!-- 根据PrimaryKey获取对象-->
 	<select id="selectByUsername" resultMap="base_result_map" >
-		select <include refid="base_column_list" /> from user_info u where contactName=#{contactName}
+		select <include refid="base_column_list" /> from user_info u where username=#{username}
 	</select>
 
 	<!-- 根据Email修改-->
@@ -736,8 +736,8 @@
 			<if test="bean.account != null">
 				 account = #{bean.account},
 			</if>
-			<if test="bean.contactName != null">
-				 contactName = #{bean.contactName},
+			<if test="bean.username != null">
+				 username = #{bean.username},
 			</if>
 			<if test="bean.sex != null">
 				 sex = #{bean.sex},

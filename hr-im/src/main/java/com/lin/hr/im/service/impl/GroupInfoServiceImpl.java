@@ -12,7 +12,7 @@ import com.lin.hr.common.constants.FileConstant;
 import com.lin.hr.common.dto.SysSettingDto;
 import com.lin.hr.common.enums.PageSize;
 import com.lin.hr.common.enums.ResponseCodeEnum;
-import com.lin.hr.common.enums.group.GroupStatusEnum;
+import com.lin.hr.im.enums.group.GroupStatusEnum;
 import com.lin.hr.common.enums.user.UserContactStatusEnum;
 import com.lin.hr.common.enums.user.UserContactTypeEnum;
 import com.lin.hr.common.exception.BusinessException;
