@@ -47,4 +47,11 @@ public class RedisComponent {
         SysSettingDto sysSettingDto = (SysSettingDto) redisUtils.get(RedisKeyConstant.REDIS_KEY_SYS_SETTING);
         return sysSettingDto == null ? new SysSettingDto() : sysSettingDto;
     }
+
+    /**
+     * 系统缓存设置
+     */
+    public void saveSysSetting(SysSettingDto sysSettingDto) {
+        redisUtils.set(RedisKeyConstant.REDIS_KEY_SYS_SETTING, sysSettingDto);
+    }
 }

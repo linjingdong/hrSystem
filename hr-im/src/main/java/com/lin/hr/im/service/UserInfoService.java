@@ -2,10 +2,14 @@ package com.lin.hr.im.service;
 
 import java.util.List;
 
+import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.im.entity.query.UserInfoQuery;
 import com.lin.hr.im.entity.po.UserInfo;
 import com.lin.hr.common.vo.PaginationResultVO;
 import com.lin.hr.im.entity.vo.account.UserInfoVo;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotBlank;
 
 
 /**
@@ -117,4 +121,18 @@ public interface UserInfoService {
     void register(String phone, String username, String password, Integer userType);
 
     UserInfoVo login(String account, String password, Integer userType);
+
+    UserInfoVo getUserInfo(TokenUserInfoDto token);
+
+    /**
+     * 更新用户信息
+     */
+    void updateUserInfo(UserInfo userInfo, MultipartFile avatarFile, MultipartFile avatarCover);
+
+    /**
+     * 更新用户状态
+     */
+    void updateUserStatus(Integer status, String userId);
+
+    void forceOffLine(String userId);
 }

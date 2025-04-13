@@ -4,6 +4,7 @@ import com.lin.hr.common.annotation.GlobalInterceptor;
 import com.lin.hr.common.controller.ABaseController;
 import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.ResponseCodeEnum;
+import com.lin.hr.common.enums.user.UserContactStatusEnum;
 import com.lin.hr.common.enums.user.UserContactTypeEnum;
 import com.lin.hr.common.exception.BusinessException;
 import com.lin.hr.common.vo.ResponseVO;
@@ -28,8 +29,6 @@ import javax.validation.constraints.NotNull;
 public class UserContactController extends ABaseController {
     @Autowired
     private UserContactService userContactService;
-    @Autowired
-    private UserInfoService userInfoService;
     @Autowired
     private UserContactApplyService userContactApplyService;
 
@@ -92,5 +91,37 @@ public class UserContactController extends ABaseController {
     public ResponseVO<Object> getContactInfo(@NotNull String contactId) {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
         return getSuccessResponseVO(userContactService.getContactInfo(tokenUserInfo.getUserId(), contactId));
+    }
+
+    /**
+     * 获取指定联系人用户信息
+     */
+    @PostMapping("/getContactUserInfo")
+    @GlobalInterceptor
+    public ResponseVO<Object> getContactUserInfo(@NotBlank String contactId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        return getSuccessResponseVO(userContactService.getUserContactInfo(tokenUserInfo.getUserId(), contactId));
+    }
+
+    /**
+     * 删除联系人
+     */
+    @PostMapping("delContact")
+    @GlobalInterceptor
+    public ResponseVO<Object> delContact(@NotBlank String contactId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        userContactService.removeUserContact(tokenUserInfo.getUserId(), contactId, UserContactStatusEnum.DEL);
+        return getSuccessResponseVO("删除联系人成功");
+    }
+
+    /**
+     * 拉黑联系人
+     */
+    @PostMapping("addContact2BlackList")
+    @GlobalInterceptor
+    public ResponseVO<Object> addContact2BlackList(@NotBlank String contactId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        userContactService.removeUserContact(tokenUserInfo.getUserId(), contactId, UserContactStatusEnum.BLACKLIST);
+        return getSuccessResponseVO("拉黑联系人成功");
     }
 }

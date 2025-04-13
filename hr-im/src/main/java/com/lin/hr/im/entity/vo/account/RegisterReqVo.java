@@ -1,10 +1,12 @@
 package com.lin.hr.im.entity.vo.account;
 
+import com.lin.hr.im.constant.RegexpConstant;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 /**
  * @author Lin_jd
@@ -22,7 +24,7 @@ public class RegisterReqVo {
     @NotEmpty(message = "请输入手机号")
     private String phone;
 
-    @NotEmpty(message = "密码不能为空")
+    @NotEmpty(message = "密码不能为空") @Pattern(regexp = RegexpConstant.REGEX_PASSWORD)
     private String password;
 
     private String username;

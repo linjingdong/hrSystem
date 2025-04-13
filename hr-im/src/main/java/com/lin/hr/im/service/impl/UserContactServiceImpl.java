@@ -1,9 +1,13 @@
 package com.lin.hr.im.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.lin.hr.common.component.RedisComponent;
+import com.lin.hr.common.dto.SysSettingDto;
 import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.PageSize;
 import com.lin.hr.common.enums.ResponseCodeEnum;
@@ -25,6 +29,7 @@ import com.lin.hr.im.mappers.GroupInfoMapper;
 import com.lin.hr.im.mappers.UserContactApplyMapper;
 import com.lin.hr.im.mappers.UserInfoMapper;
 import com.lin.hr.im.service.UserContactApplyService;
+import com.mysql.cj.conf.PropertyDefinitions;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -57,6 +62,8 @@ public class UserContactServiceImpl implements UserContactService {
     private UserContactApplyMapper<UserContactApply, UserContactApplyQuery> userContactApplyMapper;
     @Autowired
     private UserInfoServiceImpl userInfoService;
+    @Autowired
+    private RedisComponent redisComponent;
 
     /**
      * 根据条件查询列表
@@ -246,7 +253,7 @@ public class UserContactServiceImpl implements UserContactService {
 
         // 如果是加入不用申请记录
         if (JoinTypeEnum.JOIN.getType().equals(joinType)) {
-            userContactApplyService.addContact(applyUserId, receiveUserId, contactId, contactType.getType(), applyInfo);
+            this.addContact(applyUserId, receiveUserId, contactId, contactType.getType(), applyInfo);
             return joinType;
         }
 
@@ -274,6 +281,48 @@ public class UserContactServiceImpl implements UserContactService {
             // TODO 发送ws消息
         }
         return joinType;
+    }
+
+    @Override
+    public void addContact(String applyUserId, String receiveUserId, String contactId, Integer contactType, String applyInfo) {
+        // 判断群聊人数与系统群聊人数
+        if (UserContactTypeEnum.GROUP.getType().equals(contactType)) {
+            UserContactQuery userContactQuery = new UserContactQuery();
+            userContactQuery.setContactId(contactId);
+            userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+            Integer count = userContactMapper.selectCount(userContactQuery);
+            SysSettingDto sysSetting = redisComponent.getSysSetting();
+            if (sysSetting.getMaxGroupCount() > count) {
+                throw new BusinessException("成员已满，无法加入");
+            }
+        }
+        Date curDate = new Date();
+        // 同意，双方添加好友
+        List<UserContact> userContactList = new ArrayList<>();
+        // 申请人添加对方
+        UserContact applyUserContact = new UserContact();
+        applyUserContact.setUserId(applyUserId);
+        applyUserContact.setContactId(contactId);
+        applyUserContact.setContactType(contactType);
+        applyUserContact.setCreateTime(curDate);
+        applyUserContact.setLastUpdateTime(curDate);
+        applyUserContact.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+        userContactList.add(applyUserContact);
+        // 如果是申请好友，接收人添加申请人，联系类型为群组的话就不用添加好友
+        if (UserContactTypeEnum.USER.getType().equals(contactType)) {
+            UserContact userContact = new UserContact();
+            userContact.setUserId(receiveUserId);
+            userContact.setContactId(applyUserId);
+            userContact.setContactType(contactType);
+            userContact.setCreateTime(curDate);
+            userContact.setLastUpdateTime(curDate);
+            userContact.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+            userContactList.add(userContact);
+        }
+        // 批量插入
+        userContactMapper.insertBatch(userContactList);
+        // TODO 如果是好友，接受人也添加申请人为好友，添加缓存
+        // TODO 创建会话
     }
 
     @Override
@@ -313,5 +362,46 @@ public class UserContactServiceImpl implements UserContactService {
             userInfoVo.setContactStatus(UserContactStatusEnum.FRIEND.getStatus());
         }
         return userInfoVo;
+    }
+
+    @Override
+    public UserInfoVo getUserContactInfo(String userId, String contactId) {
+        UserContact userContact = userContactMapper.selectByUserIdAndContactId(userId, contactId);
+        if (null == userContact || !ArrayUtils.contains(new Integer[]{
+                UserContactStatusEnum.FRIEND.getStatus(),
+                UserContactStatusEnum.DEL_BE.getStatus(),
+                UserContactStatusEnum.BLACKLIST_BE.getStatus()
+        }, userContact.getStatus())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+
+        UserInfoVo userInfoVo = new UserInfoVo();
+        UserInfo userInfo = userInfoMapper.selectByUserId(userId);
+        BeanUtils.copyProperties(userInfo, userInfo);
+        return userInfoVo;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void removeUserContact(String userId, String contactId, UserContactStatusEnum statusEnum) {
+        Date curDate = new Date();
+        // 拉黑或移除好友
+        UserContact userContact = new UserContact();
+        userContact.setStatus(statusEnum.getStatus());
+        userContact.setLastUpdateTime(curDate);
+        userContactMapper.updateByUserIdAndContactId(userContact, userId, contactId);
+
+        UserContact friendContact = new UserContact();
+        if (UserContactStatusEnum.DEL.getStatus().equals(statusEnum.getStatus())) {
+            friendContact.setStatus(UserContactStatusEnum.DEL_BE.getStatus());
+            friendContact.setLastUpdateTime(curDate);
+
+        } else if (UserContactStatusEnum.BLACKLIST.getStatus().equals(statusEnum.getStatus())) {
+            friendContact.setStatus(UserContactStatusEnum.BLACKLIST_BE.getStatus());
+            friendContact.setLastUpdateTime(curDate);
+        }
+        userContactMapper.updateByUserIdAndContactId(friendContact, contactId, userId);
+        // TODO 从缓存我的好友列表中删除/拉黑好友
+        // TODO 从缓存好友的列表中删除/拉黑我
     }
 }

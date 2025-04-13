@@ -90,17 +90,12 @@ public interface UserContactApplyService {
     Integer deleteUserContactApplyByApplyUserIdAndReceiveUserIdAndContactId(String applyUserId, String receiveUserId, String contactId);
 
     /**
-     * 获取当前用户申请列表
-     */
-    PaginationResultVO<UserContactApply> loadApply(String userId, Integer pageNo);
-
-    /**
      * 处理当前用户申请
      */
     void dealWithApply(String userId, @NotBlank Integer applyId, @NotBlank Integer status);
 
     /**
-     * 添加联系人
+     * 获取当前用户申请列表
      */
-    void addContact(String applyUserId, String receiveUserId, String contactId, Integer contactType, String applyInfo);
+    PaginationResultVO<UserContactApply> loadApply(String userId, Integer pageNo);
 }

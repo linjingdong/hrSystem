@@ -62,6 +62,15 @@ public class GroupInfo implements Serializable {
 	 */
 	private Integer status;
 
+	/**
+	 * 群主昵称
+	 */
+	private String groupOwnerNickName;
+
+	/**
+	 * 群成员数量
+	 */
+	private Integer GroupMemberCount;
 
     @Override
 	public String toString (){

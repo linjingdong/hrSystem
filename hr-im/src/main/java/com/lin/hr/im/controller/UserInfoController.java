@@ -1,0 +1,70 @@
+package com.lin.hr.im.controller;
+
+import com.lin.hr.common.annotation.GlobalInterceptor;
+import com.lin.hr.common.controller.ABaseController;
+import com.lin.hr.common.dto.TokenUserInfoDto;
+import com.lin.hr.common.utils.StringTools;
+import com.lin.hr.common.vo.ResponseVO;
+import com.lin.hr.im.constant.RegexpConstant;
+import com.lin.hr.im.entity.po.UserInfo;
+import com.lin.hr.im.service.UserInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
+/**
+ * @author Lin_jd
+ * @version V1.0.0
+ * @since 2025/4/12 11:24
+ **/
+@RestController
+@RequestMapping("/userInfo")
+public class UserInfoController extends ABaseController {
+    @Autowired
+    private UserInfoService userInfoService;
+
+    @PostMapping("/getUserInfo")
+    @GlobalInterceptor
+    public ResponseVO<Object> getUserInfo() {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        return getSuccessResponseVO(userInfoService.getUserInfo(tokenUserInfo));
+    }
+
+    @PostMapping("/saveUserInfo")
+    @GlobalInterceptor
+    public ResponseVO<Object> saveUserInfo(UserInfo userInfo, MultipartFile avatarFile, MultipartFile avatarCover) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        userInfo.setUserId(tokenUserInfo.getUserId());
+        userInfo.setPassword(null);
+        userInfo.setStatus(null);
+        userInfo.setCreateTime(null);
+        userInfo.setLastDeviceId(null);
+        userInfoService.updateUserInfo(userInfo, avatarFile, avatarCover);
+        return getUserInfo();
+    }
+
+    @PostMapping("/updatePassword")
+    @GlobalInterceptor
+    public ResponseVO<Object> updatePassword(@NotBlank @Pattern(regexp = RegexpConstant.REGEX_PASSWORD) String password) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        UserInfo userInfo = new UserInfo();
+        userInfo.setPassword(StringTools.encodeMd5(password));
+        userInfoService.updateUserInfoByUserId(userInfo, tokenUserInfo.getUserId());
+
+        // TODO 强制退出，重新登录
+        return getSuccessResponseVO(null);
+    }
+
+    @PostMapping("/logout")
+    @GlobalInterceptor
+    public ResponseVO<Object> logout() {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        // TODO 强制退出，重新登录，关闭ws连接
+        return getSuccessResponseVO(null);
+    }
+}

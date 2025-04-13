@@ -36,11 +36,6 @@ public class UserInfoVo implements Serializable {
     private Integer sex;
 
     /**
-     * 加密后密码
-     */
-    private String password;
-
-    /**
      * 绑定邮箱
      */
     private String email;

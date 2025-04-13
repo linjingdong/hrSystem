@@ -1,5 +1,7 @@
 package com.lin.hr.im.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -8,6 +10,7 @@ import javax.annotation.Resource;
 
 import com.lin.hr.common.component.RedisComponent;
 import com.lin.hr.common.constants.AccountConstant;
+import com.lin.hr.common.constants.FileConstant;
 import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.ResponseCodeEnum;
 import com.lin.hr.common.exception.BusinessException;
@@ -30,6 +33,7 @@ import com.lin.hr.im.mappers.UserInfoMapper;
 import com.lin.hr.im.service.UserInfoService;
 import com.lin.hr.common.utils.StringTools;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
 /**
@@ -247,6 +251,58 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfoVo.setAdmin(tokenUserInfo.getAdmin());
 
         return userInfoVo;
+    }
+
+    @Override
+    public UserInfoVo getUserInfo(TokenUserInfoDto token) {
+        UserInfoVo userInfoVo = new UserInfoVo();
+        UserInfo userInfo = this.getUserInfoByUserId(token.getUserId());
+        BeanUtils.copyProperties(userInfo, userInfoVo);
+        userInfoVo.setAdmin(token.getAdmin());
+        return userInfoVo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateUserInfo(UserInfo userInfo, MultipartFile avatarFile, MultipartFile avatarCover) {
+        if (null != avatarFile) {
+            String baseFolder = appConfig.getProjectFolder() + FileConstant.FILE_FOLDER_FILE;
+            File targetFileFolder = new File(baseFolder + FileConstant.FILE_FOLDER_AVATAR_NAME);
+            if (!targetFileFolder.exists()) {
+                targetFileFolder.mkdirs();
+            }
+            String filePath = targetFileFolder.getPath() + "/" + userInfo.getUserId() + FileConstant.IMAGE_SUFFIX;
+            try {
+                avatarFile.transferTo(new File(filePath));
+                avatarCover.transferTo(new File(filePath + FileConstant.COVER_IMAGE_SUFFIX));
+            } catch (IOException e) {
+                throw new BusinessException("头像图片上传失败");
+            }
+        }
+        UserInfo dbUserInfo = userInfoMapper.selectByUserId(userInfo.getUserId());
+        userInfoMapper.updateByUserId(userInfo, userInfo.getUserId());
+        String contactNameUpdate = null;
+        if (!dbUserInfo.getUsername().equals(userInfo.getUsername())) {
+            contactNameUpdate = userInfo.getUsername();
+        }
+        // TODO 更新会话信息中的昵称信息
+    }
+
+    @Override
+    public void updateUserStatus(Integer status, String userId) {
+        UserStatusEnum userStatusEnum = UserStatusEnum.getByStatus(status);
+        if (userStatusEnum == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+
+        UserInfo userInfo = new UserInfo();
+        userInfo.setStatus(userStatusEnum.getStatus());
+        userInfoMapper.updateByUserId(userInfo, userId);
+    }
+
+    @Override
+    public void forceOffLine(String userId) {
+        // TODO 强制下线，发送ws
     }
 
     private TokenUserInfoDto getTokenUserInfo(UserInfo userInfo) {

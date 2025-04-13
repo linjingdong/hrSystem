@@ -18,6 +18,7 @@ import com.lin.hr.im.entity.po.UserContact;
 import com.lin.hr.im.entity.query.UserContactQuery;
 import com.lin.hr.im.enums.apply.UserContactApplyStatusEnum;
 import com.lin.hr.im.mappers.UserContactMapper;
+import com.lin.hr.im.service.UserContactService;
 import org.springframework.stereotype.Service;
 
 
@@ -41,7 +42,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
     @Resource
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
     @Resource
-    private RedisComponent redisComponent;
+    private UserContactService userContactService;
 
     /**
      * 根据条件查询列表
@@ -170,17 +171,6 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
         return this.userContactApplyMapper.deleteByApplyUserIdAndReceiveUserIdAndContactId(applyUserId, receiveUserId, contactId);
     }
 
-    @Override
-    public PaginationResultVO<UserContactApply> loadApply(String userId, Integer pageNo) {
-        UserContactApplyQuery applyQuery = new UserContactApplyQuery();
-        applyQuery.setPageNo(pageNo);
-        applyQuery.setPageSize(PageSize.SIZE15.getSize());
-        applyQuery.setReceiveUserId(userId);
-        applyQuery.setOrderBy("last_apply_time desc");
-        applyQuery.setQueryContactInfo(true);
-        return this.findListByPage(applyQuery);
-    }
-
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void dealWithApply(String userId, Integer applyId, Integer status) {
@@ -208,7 +198,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
         }
 
         if (UserContactApplyStatusEnum.PASS == statusEnum) {
-            addContact(applyInfo.getApplyUserId(), applyInfo.getReceiveUserId(), applyInfo.getContactId(), applyInfo.getContactType(), applyInfo.getApplyInfo());
+            userContactService.addContact(applyInfo.getApplyUserId(), applyInfo.getReceiveUserId(), applyInfo.getContactId(), applyInfo.getContactType(), applyInfo.getApplyInfo());
             return;
         }
 
@@ -226,44 +216,13 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
     }
 
     @Override
-    public void addContact(String applyUserId, String receiveUserId, String contactId, Integer contactType, String applyInfo) {
-        // 判断群聊人数与系统群聊人数
-        if (UserContactTypeEnum.GROUP.getType().equals(contactType)) {
-            UserContactQuery userContactQuery = new UserContactQuery();
-            userContactQuery.setContactId(contactId);
-            userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
-            Integer count = userContactMapper.selectCount(userContactQuery);
-            SysSettingDto sysSetting = redisComponent.getSysSetting();
-            if (sysSetting.getMaxGroupCount() > count) {
-                throw new BusinessException("成员已满，无法加入");
-            }
-        }
-        Date curDate = new Date();
-        // 同意，双方添加好友
-        List<UserContact> userContactList = new ArrayList<>();
-        // 申请人添加对方
-        UserContact applyUserContact = new UserContact();
-        applyUserContact.setUserId(applyUserId);
-        applyUserContact.setContactId(contactId);
-        applyUserContact.setContactType(contactType);
-        applyUserContact.setCreateTime(curDate);
-        applyUserContact.setLastUpdateTime(curDate);
-        applyUserContact.setStatus(UserContactStatusEnum.FRIEND.getStatus());
-        userContactList.add(applyUserContact);
-        // 如果是申请好友，接收人添加申请人，联系类型为群组的话就不用添加好友
-        if (UserContactTypeEnum.USER.getType().equals(contactType)) {
-            UserContact userContact = new UserContact();
-            userContact.setUserId(receiveUserId);
-            userContact.setContactId(applyUserId);
-            userContact.setContactType(contactType);
-            userContact.setCreateTime(curDate);
-            userContact.setLastUpdateTime(curDate);
-            userContact.setStatus(UserContactStatusEnum.FRIEND.getStatus());
-            userContactList.add(userContact);
-        }
-        // 批量插入
-        userContactMapper.insertBatch(userContactList);
-        // TODO 如果是好友，接受人也添加申请人为好友，添加缓存
-        // TODO 创建会话
+    public PaginationResultVO<UserContactApply> loadApply(String userId, Integer pageNo) {
+        UserContactApplyQuery applyQuery = new UserContactApplyQuery();
+        applyQuery.setPageNo(pageNo);
+        applyQuery.setPageSize(PageSize.SIZE15.getSize());
+        applyQuery.setReceiveUserId(userId);
+        applyQuery.setOrderBy("last_apply_time desc");
+        applyQuery.setQueryContactInfo(true);
+        return this.findListByPage(applyQuery);
     }
 }
