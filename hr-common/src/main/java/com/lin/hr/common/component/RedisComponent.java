@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 @Component("redisComponent")
 public class RedisComponent {
     @Resource
-    private RedisUtils redisUtils;
+    private RedisUtils<Object> redisUtils;
 
     /**
      * 获取心跳
@@ -38,6 +38,13 @@ public class RedisComponent {
 
         // 缓存userId - token
         redisUtils.setEx(RedisKeyConstant.REDIS_KEY_WS_TOKEN_USERID + tokenUserInfo.getUserId(), tokenUserInfo.getToken(), TimeConstant.REDIS_TIME_EXPIRES_DAY * 2);
+    }
+
+    /**
+     * 获取Token
+     */
+    public TokenUserInfoDto getTokenUserInfo(String token) {
+        return (TokenUserInfoDto) redisUtils.get(RedisKeyConstant.REDIS_KEY_WS_TOKEN + token);
     }
 
     /**

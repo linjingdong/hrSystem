@@ -1,6 +1,7 @@
 package com.lin.hr.start;
 
 import com.lin.hr.common.utils.RedisUtils;
+import com.lin.hr.im.websocket.netty.NettyWebSocketStarter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -20,25 +21,27 @@ import java.util.logging.Logger;
 
 @Component("initRun")
 public class InitRun implements ApplicationRunner {
-
     private static final Logger log = Logger.getLogger(InitRun.class.getName());
-
     @Resource
     private DataSource dataSource;
     @Resource
-    private RedisUtils redisUtil;
+    private RedisUtils<Object> redisUtil;
+    @Resource
+    private NettyWebSocketStarter nettyWebSocketStarter;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         try {
             dataSource.getConnection();
             redisUtil.get("init");
+            // 启动netty
+            new Thread(nettyWebSocketStarter).start();
             log.info("服务器启动成功...");
         } catch (SQLException e) {
             log.info("数据库配置错误，请检查数据库配置...");
-        } catch (RedisConnectionFailureException e ) {
+        } catch (RedisConnectionFailureException e) {
             log.info("redis配置错误，请检查redis配置...");
-        } catch (Exception e ) {
+        } catch (Exception e) {
             log.info("服务启动失败...");
         }
     }
