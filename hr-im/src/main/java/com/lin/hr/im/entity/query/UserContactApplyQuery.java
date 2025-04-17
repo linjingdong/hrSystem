@@ -1,7 +1,6 @@
 package com.lin.hr.im.entity.query;
 
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

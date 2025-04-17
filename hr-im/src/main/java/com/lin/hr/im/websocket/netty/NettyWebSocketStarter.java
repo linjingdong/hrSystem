@@ -60,7 +60,7 @@ public class NettyWebSocketStarter implements Runnable{
                             // long readerIdleTime 读超时时间：测试端一定时间内未收到被测试端消息
                             // long writerIdleTime 写超时时间：测试端一定时间内相别测试段发送消息
                             // long allIdleTime    所有类型的超时时间
-                            pipeline.addLast(new IdleStateHandler(6, 0, 0, TimeUnit.SECONDS));
+                            pipeline.addLast(new IdleStateHandler(60, 0, 0, TimeUnit.SECONDS));
                             // 4.心跳处理器
                             pipeline.addLast(new HandlerHeartBeat());
                             // 5.将http协议升级为ws协议，对webSocket支持

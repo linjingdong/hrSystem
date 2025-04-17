@@ -8,6 +8,8 @@ import com.lin.hr.common.utils.RedisUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Lin_jd
@@ -27,6 +29,20 @@ public class RedisComponent {
      */
     public Long getUserHeartBeat(String userId) {
         return (Long) redisUtils.get(RedisKeyConstant.REDIS_KEY_WS_USER_HEART_BEAT + userId);
+    }
+
+    /**
+     * 保存心跳
+     */
+    public void saveUserHeartBeat(String userId) {
+        redisUtils.setEx(RedisKeyConstant.REDIS_KEY_WS_USER_HEART_BEAT + userId, System.currentTimeMillis(), TimeConstant.REDIS_KEY_EXPIRES_HEART_BEAT);
+    }
+
+    /**
+     * 删除心跳
+     */
+    public void removeUserHeartBeat(String userId) {
+        redisUtils.delete(RedisKeyConstant.REDIS_KEY_WS_USER_HEART_BEAT + userId);
     }
 
     /**
@@ -60,5 +76,27 @@ public class RedisComponent {
      */
     public void saveSysSetting(SysSettingDto sysSettingDto) {
         redisUtils.set(RedisKeyConstant.REDIS_KEY_SYS_SETTING, sysSettingDto);
+    }
+
+    /**
+     * 清楚缓存联系人
+     */
+    public void cleanUserContactIds(String userId) {
+        redisUtils.delete(RedisKeyConstant.REDIS_KEY_USER_CONTACT + userId);
+    }
+
+    /**
+     * 批量缓存联系人
+     */
+    public void addUserContactBatch(String userId, List<String> userContactIds) {
+        List<Object> objectList = new ArrayList<>(userContactIds);
+        redisUtils.lPushAll(RedisKeyConstant.REDIS_KEY_USER_CONTACT + userId, objectList, TimeConstant.REDIS_TIME_EXPIRES_DAY);
+    }
+
+    /**
+     * 获取联系人
+     */
+    public List<String> getUserContactIds(String userId) {
+        return (List<String>) redisUtils.get(RedisKeyConstant.REDIS_KEY_USER_CONTACT + userId);
     }
 }

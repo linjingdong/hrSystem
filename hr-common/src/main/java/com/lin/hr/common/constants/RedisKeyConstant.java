@@ -20,4 +20,7 @@ public class RedisKeyConstant {
 
     // 系统设置
     public static final String REDIS_KEY_SYS_SETTING = "hrsystem:syssetting:";
+
+    // 用户联系人列表
+    public static final String REDIS_KEY_USER_CONTACT = "hrsystem:ws:user:contact:";
 }

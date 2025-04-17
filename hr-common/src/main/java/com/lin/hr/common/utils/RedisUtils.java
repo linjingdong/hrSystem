@@ -136,7 +136,7 @@ public class RedisUtils<V> {
     /**
      * 移除列表中的一个值
      *
-     * @param key   键
+     * @param key    键
      * @param object 值
      * @return 布尔值
      */

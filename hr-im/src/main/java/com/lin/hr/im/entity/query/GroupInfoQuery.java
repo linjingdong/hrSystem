@@ -3,8 +3,6 @@ package com.lin.hr.im.entity.query;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
-
 
 /**
  * 参数

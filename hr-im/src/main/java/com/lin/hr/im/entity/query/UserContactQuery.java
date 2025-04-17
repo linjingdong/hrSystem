@@ -1,14 +1,14 @@
 package com.lin.hr.im.entity.query;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 联系人参数
  */
-@Data
+@Getter
+@Setter
 public class UserContactQuery extends BaseParam {
-
-
     /**
      * 用户ID
      */
@@ -71,7 +71,7 @@ public class UserContactQuery extends BaseParam {
     private boolean excludeMyGroup;
 
     /**
-     *
+     * 联系人状态列表
      */
     private Integer[] statusArray;
 }

@@ -77,9 +77,9 @@ public class UserInfoVo implements Serializable {
     private String unionId;
 
     /**
-     * ✨最后登录设备ID
+     * ✨最后登录时间
      */
-    private String lastDeviceId;
+    private String lastLoginTime;
 
     /**
      * 创建时间

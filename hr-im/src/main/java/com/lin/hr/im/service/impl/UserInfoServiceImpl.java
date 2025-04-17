@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -13,11 +14,15 @@ import com.lin.hr.common.constants.AccountConstant;
 import com.lin.hr.common.constants.FileConstant;
 import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.ResponseCodeEnum;
+import com.lin.hr.common.enums.user.UserContactStatusEnum;
 import com.lin.hr.common.exception.BusinessException;
 import com.lin.hr.common.config.AppConfig;
 import com.lin.hr.common.enums.user.UserStatusEnum;
 import com.lin.hr.common.enums.user.UserTypeEnum;
+import com.lin.hr.im.entity.po.UserContact;
+import com.lin.hr.im.entity.query.UserContactQuery;
 import com.lin.hr.im.entity.vo.account.UserInfoVo;
+import com.lin.hr.im.mappers.UserContactMapper;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -48,6 +53,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     private AppConfig appConfig;
     @Autowired
     private RedisComponent redisComponent;
+    @Autowired
+    private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
 
     /**
      * 根据条件查询列表
@@ -242,8 +249,20 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (null != lastHeartBeat) {
             throw new BusinessException(ResponseCodeEnum.CODE_601.getCode(), "此账号已经在别处登录，请退出后再登录");
         }
-        // TODO 查询我的群组
-        // TODO 查询我的联系人
+        // 查询我的联系人
+        UserContactQuery userContactQuery = new UserContactQuery();
+        userContactQuery.setUserId(userInfo.getUserId());
+        userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+        List<UserContact> userContacts = this.userContactMapper.selectList(userContactQuery);
+        List<String> userContactIds = userContacts.stream().map(UserContact::getContactId).collect(Collectors.toList());
+        redisComponent.cleanUserContactIds(userInfo.getUserId());
+        if (!userContactIds.isEmpty()) {
+            redisComponent.addUserContactBatch(userInfo.getUserId(), userContactIds);
+        }
+
+        // 查询我的群组
+
+
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo(userInfo);
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(userInfo, userInfoVo);

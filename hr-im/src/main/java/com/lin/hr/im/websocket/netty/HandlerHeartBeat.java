@@ -1,9 +1,12 @@
 package com.lin.hr.im.websocket.netty;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +23,10 @@ public class HandlerHeartBeat extends ChannelDuplexHandler {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
             if (e.state() == IdleState.READER_IDLE) {
-                log.info("心跳超时");
+                Channel channel = ctx.channel();
+                Attribute<String> attr = channel.attr(AttributeKey.valueOf(channel.id().toString()));
+                String userId = attr.get();
+                log.info("心跳超时，userId --> {}", userId);
                 ctx.close();
             } else if (e.state() == IdleState.WRITER_IDLE) {
                 ctx.writeAndFlush("heart");

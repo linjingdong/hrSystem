@@ -43,7 +43,7 @@ public class UserInfoController extends ABaseController {
         userInfo.setPassword(null);
         userInfo.setStatus(null);
         userInfo.setCreateTime(null);
-        userInfo.setLastDeviceId(null);
+        userInfo.setLastLoginTime(null);
         userInfoService.updateUserInfo(userInfo, avatarFile, avatarCover);
         return getUserInfo();
     }
