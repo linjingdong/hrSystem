@@ -49,7 +49,7 @@ public class UserContactController extends ABaseController {
     @GlobalInterceptor
     public ResponseVO<Object> applyAdd(@NotBlank String contactId, String applyInfo) {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
-        return getSuccessResponseVO(userContactService.applyAdd(tokenUserInfo, contactId, applyInfo));
+        return getSuccessResponseVO(userContactApplyService.applyAdd(tokenUserInfo, contactId, applyInfo));
     }
 
     /**

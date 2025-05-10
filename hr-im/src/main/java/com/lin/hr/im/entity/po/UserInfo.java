@@ -87,7 +87,7 @@ public class UserInfo implements Serializable {
     /**
      * ✨最后登录设备ID
      */
-    private String lastLoginTime;
+    private Date lastLoginTime;
 
     /**
      * 最后离开时间

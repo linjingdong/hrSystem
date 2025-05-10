@@ -3,11 +3,13 @@ package com.lin.hr.common.utils;
 import com.lin.hr.common.constants.AccountConstant;
 import com.lin.hr.common.exception.BusinessException;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 
 public class StringTools {
@@ -75,5 +77,33 @@ public class StringTools {
 
     public static String encodeMd5(String originString) {
         return StringUtils.isBlank(originString) ? null : DigestUtils.md5Hex(originString);
+    }
+
+    /**
+     * 清除注入标签
+     */
+    public static String cleanHtmlTag(String content) {
+        if (isEmpty(content)) {
+            return content;
+        }
+        content = content.replace("<", "&lt;");
+        content = content.replace("\r\n", "<br>");
+        content = content.replace("\n", "<br>");
+        return content;
+    }
+
+    /**
+     * 生成用户会话id
+     */
+    public static String getChatSession4User(String[] userIds) {
+        Arrays.sort(userIds);
+        return encodeMd5(StringUtils.join(userIds, ""));
+    }
+
+    /**
+     * 生成群组会话id
+     */
+    public static String getChatSession4Group(String contactId) {
+        return encodeMd5(contactId);
     }
 }

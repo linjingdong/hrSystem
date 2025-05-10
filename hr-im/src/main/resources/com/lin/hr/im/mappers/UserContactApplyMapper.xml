@@ -31,30 +31,30 @@
 	</sql>
 
 	<sql id="base_condition_filed">
-			<if test="query.applyId != null">
-				 and  u.apply_id = #{query.applyId}
-			</if>
-			<if test="query.applyUserId != null and query.applyUserId!=''">
-				 and  u.apply_user_id = #{query.applyUserId}
-			</if>
-			<if test="query.receiveUserId != null and query.receiveUserId!=''">
-				 and  u.receive_user_id = #{query.receiveUserId}
-			</if>
-			<if test="query.contactType != null">
-				 and  u.contact_type = #{query.contactType}
-			</if>
-			<if test="query.contactId != null and query.contactId!=''">
-				 and  u.contact_id = #{query.contactId}
-			</if>
-			<if test="query.lastApplyTime != null">
-				 and  u.last_apply_time = #{query.lastApplyTime}
-			</if>
-			<if test="query.status != null">
-				 and  u.status = #{query.status}
-			</if>
-			<if test="query.applyInfo != null and query.applyInfo!=''">
-				 and  u.apply_info = #{query.applyInfo}
-			</if>
+		<if test="query.applyId != null">
+			and u.apply_id = #{query.applyId}
+		</if>
+		<if test="query.applyUserId != null and query.applyUserId!=''">
+			and u.apply_user_id = #{query.applyUserId}
+		</if>
+		<if test="query.receiveUserId != null and query.receiveUserId!=''">
+			and u.receive_user_id = #{query.receiveUserId}
+		</if>
+		<if test="query.contactType != null">
+			and u.contact_type = #{query.contactType}
+		</if>
+		<if test="query.contactId != null and query.contactId!=''">
+			and u.contact_id = #{query.contactId}
+		</if>
+		<if test="query.lastApplyTime != null">
+			and u.last_apply_time = #{query.lastApplyTime}
+		</if>
+		<if test="query.status != null">
+			and u.status = #{query.status}
+		</if>
+		<if test="query.applyInfo != null and query.applyInfo!=''">
+			and u.apply_info = #{query.applyInfo}
+		</if>
 	</sql>
 	<!-- 通用条件列-->
 	<sql id="base_condition">
@@ -65,21 +65,25 @@
 
 	<!-- 通用查询条件列-->
 	<sql id="query_condition">
-	 <where>
-			<include refid="base_condition_filed" />
+		<where>
+			<include refid="base_condition_filed"/>
 			<if test="query.applyUserIdFuzzy!= null  and query.applyUserIdFuzzy!=''">
-				 and  u.apply_user_id like concat('%', #{query.applyUserIdFuzzy}, '%')
+				and u.apply_user_id like concat('%', #{query.applyUserIdFuzzy}, '%')
 			</if>
 			<if test="query.receiveUserIdFuzzy!= null  and query.receiveUserIdFuzzy!=''">
-				 and  u.receive_user_id like concat('%', #{query.receiveUserIdFuzzy}, '%')
+				and u.receive_user_id like concat('%', #{query.receiveUserIdFuzzy}, '%')
 			</if>
 			<if test="query.contactIdFuzzy!= null  and query.contactIdFuzzy!=''">
-				 and  u.contact_id like concat('%', #{query.contactIdFuzzy}, '%')
+				and u.contact_id like concat('%', #{query.contactIdFuzzy}, '%')
 			</if>
 			<if test="query.applyInfoFuzzy!= null  and query.applyInfoFuzzy!=''">
-				 and  u.apply_info like concat('%', #{query.applyInfoFuzzy}, '%')
+				and u.apply_info like concat('%', #{query.applyInfoFuzzy}, '%')
 			</if>
-	 </where>
+			<!-- 额外的查询条件 -->
+			<if test="query.lastApplyTimeStamp != null">
+				and u.last_apply_time >= #{query.lastApplyTimeStamp}
+			</if>
+		</where>
 	</sql>
 
 	<!-- 查询集合-->

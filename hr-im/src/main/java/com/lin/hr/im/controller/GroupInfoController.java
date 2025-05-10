@@ -45,7 +45,7 @@ public class GroupInfoController extends ABaseController {
         groupInfo.setJoinType(joinType);
 
         groupInfoService.saveGroup(groupInfo, avatarFile, avatarCover);
-        return getSuccessResponseVO(null);
+        return getSuccessResponseVO("创建群组成功");
     }
 
     @GlobalInterceptor

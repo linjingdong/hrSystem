@@ -3,17 +3,25 @@ package com.lin.hr.im.websocket.utils;
 import com.lin.hr.common.component.RedisComponent;
 import com.lin.hr.common.constants.TimeConstant;
 import com.lin.hr.common.enums.user.UserContactTypeEnum;
+import com.lin.hr.common.utils.JsonUtils;
+import com.lin.hr.im.entity.dto.MessageSendDto;
 import com.lin.hr.im.entity.dto.WsInitData;
-import com.lin.hr.im.entity.po.ChatSessionUser;
-import com.lin.hr.im.entity.po.UserInfo;
+import com.lin.hr.im.entity.enums.MessageTypeEnum;
+import com.lin.hr.im.entity.po.*;
 
+import com.lin.hr.im.entity.query.ChatMessageQuery;
 import com.lin.hr.im.entity.query.ChatSessionUserQuery;
+import com.lin.hr.im.entity.query.UserContactApplyQuery;
 import com.lin.hr.im.entity.query.UserInfoQuery;
+import com.lin.hr.im.enums.apply.UserContactApplyStatusEnum;
+import com.lin.hr.im.mappers.ChatMessageMapper;
+import com.lin.hr.im.mappers.UserContactApplyMapper;
 import com.lin.hr.im.mappers.UserInfoMapper;
 import com.lin.hr.im.service.ChatSessionUserService;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -28,6 +36,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author Lin_jd
@@ -49,6 +58,10 @@ public class ChannelContextUtils {
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
     @Autowired
     private ChatSessionUserService chatSessionUserService;
+    @Autowired
+    private ChatMessageMapper<ChatMessage, ChatMessageQuery> chatMessageMapper;
+    @Autowired
+    private UserContactApplyMapper<UserContactApply, UserContactApplyQuery> userContactApplyMapper;
 
     /**
      * 连接netty
@@ -74,11 +87,11 @@ public class ChannelContextUtils {
 
         // 更新用户最后连接时间
         UserInfo updateUserInfo = new UserInfo();
-        updateUserInfo.setLastLoginTime(new Date().toString());
+        updateUserInfo.setLastLoginTime(new Date());
         userInfoMapper.updateByUserId(updateUserInfo, userId);
 
         // 给用户发消息
-        UserInfo userInfo = new UserInfo();
+        UserInfo userInfo = userInfoMapper.selectByUserId(userId);
         Long sourceLastOffTime = userInfo.getLastOffTime();
         Long lastOffTime = sourceLastOffTime;
         if (sourceLastOffTime != null && System.currentTimeMillis() - TimeConstant.MILLIS_SECONDS_3_DAYS_AGO > sourceLastOffTime) {
@@ -91,15 +104,35 @@ public class ChannelContextUtils {
         sessionUserQuery.setUserId(userId);
         sessionUserQuery.setOrderBy("last_receive_time desc");
         List<ChatSessionUser> chatSessionUsers = chatSessionUserService.findListByParam(sessionUserQuery);
-        wsInitData.setChatSessionUserList(chatSessionUsers);
-        // TODO 2. 查询聊天记录
+        wsInitData.setChatSessionList(chatSessionUsers);
 
-        // TODO 3. 查询好友申请
+        // 2. 查询聊天记录
+        ChatMessageQuery chatMessageQuery = new ChatMessageQuery();
+        List<String> groupAndMeContactList = contactIds.stream().filter(item ->
+                item.startsWith(UserContactTypeEnum.GROUP.getPrefix())
+        ).collect(Collectors.toList());
+        groupAndMeContactList.add(userId);
+        chatMessageQuery.setContactIdList(groupAndMeContactList);
+        chatMessageQuery.setLastReceiveTime(lastOffTime);
+        List<ChatMessage> chatMessageList = chatMessageMapper.selectList(chatMessageQuery);
+        wsInitData.setChatMessageList(chatMessageList);
+
+        // 3. 查询好友申请
+        UserContactApplyQuery userContactApplyQuery = new UserContactApplyQuery();
+        userContactApplyQuery.setReceiveUserId(userId);
+        userContactApplyQuery.setStatus(UserContactApplyStatusEnum.INIT.getStatus());
+        userContactApplyQuery.setLastApplyTimeStamp(lastOffTime);
+        Integer applyCount = userContactApplyMapper.selectCount(userContactApplyQuery);
+        wsInitData.setApplyCount(applyCount);
+
+        // 4. 发送消息
+        MessageSendDto<WsInitData> messageSendDto = new MessageSendDto<>();
+        messageSendDto.setMessageType(MessageTypeEnum.INIT.getType());
+        messageSendDto.setContactId(userId);
+        messageSendDto.setExtendData(wsInitData);
+        sendMsg(messageSendDto, userId);
     }
 
-    // TODO 发送消息
-    public static void sendMsg() {
-    }
 
     /**
      * 连接群组
@@ -132,4 +165,90 @@ public class ChannelContextUtils {
         updateUserInfo.setLastOffTime(System.currentTimeMillis());
         userInfoMapper.updateByUserId(updateUserInfo, userId);
     }
+
+    /**
+     * 发送消息
+     */
+    public void sendMessage(MessageSendDto<?> messageSendDto) {
+        UserContactTypeEnum contactType = UserContactTypeEnum.getByPrefix(messageSendDto.getContactId());
+        if (contactType == null) {
+            return;
+        }
+        switch (contactType) {
+            case USER:
+                send2User(messageSendDto);
+                break;
+            case GROUP:
+                send2Group(messageSendDto);
+                break;
+        }
+    }
+
+    /**
+     * 发送消息给用户
+     */
+    public void send2User(MessageSendDto<?> messageSendDto) {
+        String receiverId = messageSendDto.getContactId();
+        if (StringUtils.isBlank(receiverId)) {
+            return;
+        }
+        sendMsg(messageSendDto, receiverId);
+        // 强制下线
+        if (MessageTypeEnum.FORCE_OFF_LINE.getType().equals(messageSendDto.getMessageType())) {
+            // 关闭通道
+            closeContext(receiverId);
+        }
+    }
+
+    /**
+     * 发送用户消息
+     *
+     * @param messageSendDto 消息参数
+     * @param receiverId     消息接收人
+     */
+    public void sendMsg(MessageSendDto<?> messageSendDto, String receiverId) {
+        Channel userChannel = USER_CONTEXT_MAP.get(receiverId);
+        if (null == userChannel) {
+            return;
+        }
+
+        if (MessageTypeEnum.ADD_FRIEND_SELF.getType().equals(messageSendDto.getMessageType())) {
+
+        } else {
+            messageSendDto.setContactId(messageSendDto.getSendUserId());
+            messageSendDto.setContactName(messageSendDto.getSendNickName());
+        }
+        userChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
+    }
+
+    /**
+     * 强制下线
+     */
+    public void closeContext(String userId) {
+        if (StringUtils.isBlank(userId)) {
+            return;
+        }
+        Channel channel = USER_CONTEXT_MAP.get(userId);
+        if (null == channel) {
+            return;
+        }
+        redisComponent.cleanUserTokenByUserId(userId);
+        channel.close();
+    }
+
+    /**
+     * 发送消息给群组
+     */
+    public void send2Group(MessageSendDto<?> messageSendDto) {
+        if (StringUtils.isBlank(messageSendDto.getContactId())) {
+            return;
+        }
+        ChannelGroup groupChannel = GROUP_CONTEXT_MAP.get(messageSendDto.getContactId());
+        if (null == groupChannel) {
+            return;
+        }
+        groupChannel.writeAndFlush(JsonUtils.convertObj2Json(messageSendDto));
+    }
+
+
 }

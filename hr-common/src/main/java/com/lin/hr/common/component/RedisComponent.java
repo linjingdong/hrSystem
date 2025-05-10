@@ -5,11 +5,15 @@ import com.lin.hr.common.constants.TimeConstant;
 import com.lin.hr.common.dto.SysSettingDto;
 import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.utils.RedisUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Lin_jd
@@ -64,6 +68,19 @@ public class RedisComponent {
     }
 
     /**
+     * 通过useId清除该用户token
+     *
+     * @param userId 用户id
+     */
+    public void cleanUserTokenByUserId(String userId) {
+        String token = (String) redisUtils.get(RedisKeyConstant.REDIS_KEY_WS_TOKEN_USERID + userId);
+        if (StringUtils.isBlank(token)) {
+            return;
+        }
+        redisUtils.delete(RedisKeyConstant.REDIS_KEY_WS_TOKEN + token);
+    }
+
+    /**
      * 获取系统设置缓存
      */
     public SysSettingDto getSysSetting() {
@@ -94,9 +111,21 @@ public class RedisComponent {
     }
 
     /**
+     * 单独缓存联系人
+     */
+    public void addUserContact(String userId, String contactId) {
+        List<String> userContactIds = getUserContactIds(userId);
+        if (userContactIds.contains(contactId)) {
+            return;
+        }
+        redisUtils.lPush(RedisKeyConstant.REDIS_KEY_USER_CONTACT + userId, contactId, TimeConstant.REDIS_TIME_EXPIRES_DAY);
+    }
+
+    /**
      * 获取联系人
      */
     public List<String> getUserContactIds(String userId) {
-        return (List<String>) redisUtils.get(RedisKeyConstant.REDIS_KEY_USER_CONTACT + userId);
+        List<Object> objectList = redisUtils.getQueueList(RedisKeyConstant.REDIS_KEY_USER_CONTACT + userId);
+        return objectList.stream().map(Object::toString).collect(Collectors.toList());
     }
 }

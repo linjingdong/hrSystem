@@ -79,13 +79,6 @@ public interface UserContactService {
     UserContactSearchResultDto searchContact(String userId, @NotBlank String contactId);
 
     /**
-     * 申请好友
-     *
-     * @return 加入类型：
-     */
-    Integer applyAdd(TokenUserInfoDto tokenUserInfo, @NotBlank String contactId, String applyInfo);
-
-    /**
      * 添加联系人
      */
     void addContact(String applyUserId, String receiveUserId, String contactId, Integer contactType, String applyInfo);
@@ -109,4 +102,9 @@ public interface UserContactService {
      * 删除或拉黑好友
      */
     void removeUserContact(String userId, String contactId, UserContactStatusEnum statusEnum);
+
+    /**
+     * 添加机器人为联系人
+     */
+    void addContact4Robot(String userId);
 }

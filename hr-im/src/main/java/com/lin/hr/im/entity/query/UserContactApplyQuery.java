@@ -59,4 +59,9 @@ public class UserContactApplyQuery extends BaseParam {
     private String applyInfoFuzzy;
 
     private Boolean queryContactInfo;
+
+    /**
+     * 最后申请时间
+     */
+    private Long lastApplyTimeStamp;
 }

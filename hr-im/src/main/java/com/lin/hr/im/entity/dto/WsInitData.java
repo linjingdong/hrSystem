@@ -1,5 +1,6 @@
 package com.lin.hr.im.entity.dto;
 
+import com.lin.hr.im.entity.po.ChatMessage;
 import com.lin.hr.im.entity.po.ChatSession;
 import com.lin.hr.im.entity.po.ChatSessionUser;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.util.List;
  **/
 @Data
 public class WsInitData {
-    private List<ChatSessionUser> chatSessionUserList;
-    private List<ChatSession> chatSessionList;
+    private List<ChatSessionUser> chatSessionList;
+    private List<ChatMessage> chatMessageList;
     private Integer applyCount;
 }

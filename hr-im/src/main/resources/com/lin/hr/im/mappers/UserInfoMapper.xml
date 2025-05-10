@@ -32,7 +32,7 @@
 		<!--✨微信UnionID-->
 		<result column="union_id" property="unionId"  />
 		<!--✨最后登录设备ID-->
-		<result column="last_device_id" property="lastLoginTime"  />
+		<result column="last_login_time" property="lastLoginTime"  />
 		<!--创建时间-->
 		<result column="create_time" property="createTime"  />
 		<!--最后离开时间-->
@@ -44,7 +44,7 @@
 	<sql id="base_column_list">
 		 u.user_id,u.account,u.username,u.sex,u.password,
 		 u.email,u.phone,u.user_type,u.status,u.area_name,
-		 u.area_code,u.openid,u.union_id,u.last_device_id,u.create_time,
+		 u.area_code,u.openid,u.union_id,u.last_login_time,u.create_time,
 		 u.last_off_time
 	</sql>
 
@@ -89,7 +89,7 @@
 				 and  u.union_id = #{query.unionId}
 			</if>
 			<if test="query.lastLoginTime != null and query.lastLoginTime!=''">
-				 and  u.last_device_id = #{query.lastLoginTime}
+				 and  u.last_login_time = #{query.lastLoginTime}
 			</if>
 			<if test="query.createTime != null and query.createTime!=''">
 				 <![CDATA[ and  u.create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
@@ -143,7 +143,7 @@
 				 and  u.union_id like concat('%', #{query.unionIdFuzzy}, '%')
 			</if>
 			<if test="query.lastLoginTimeFuzzy!= null  and query.lastLoginTimeFuzzy!=''">
-				 and  u.last_device_id like concat('%', #{query.lastLoginTimeFuzzy}, '%')
+				 and  u.last_login_time like concat('%', #{query.lastLoginTimeFuzzy}, '%')
 			</if>
 			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
 				 <![CDATA[ and  u.create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
@@ -220,7 +220,7 @@
 				 union_id,
 			</if>
 			<if test="bean.lastLoginTime != null">
-				 last_device_id,
+				 last_login_time,
 			</if>
 			<if test="bean.createTime != null">
 				 create_time,
@@ -325,7 +325,7 @@
 				 union_id,
 			</if>
 			<if test="bean.lastLoginTime != null">
-				 last_device_id,
+				 last_login_time,
 			</if>
 			<if test="bean.createTime != null">
 				 create_time,
@@ -426,7 +426,7 @@
 				 union_id = VALUES(union_id),
 			</if>
 			<if test="bean.lastLoginTime!=null">
-				 last_device_id = VALUES(last_device_id),
+				 last_login_time = VALUES(last_login_time),
 			</if>
 			<if test="bean.createTime!=null">
 				 create_time = VALUES(create_time),
@@ -453,7 +453,7 @@
 			 area_code,
 			 openid,
 			 union_id,
-			 last_device_id,
+			 last_login_time,
 			 create_time,
 			 last_off_time
 		 )values
@@ -495,7 +495,7 @@
 			 area_code,
 			 openid,
 			 union_id,
-			 last_device_id,
+			 last_login_time,
 			 create_time,
 			 last_off_time
 		 )values
@@ -533,7 +533,7 @@
 			area_code = VALUES(area_code),
 			openid = VALUES(openid),
 			union_id = VALUES(union_id),
-			last_device_id = VALUES(last_device_id),
+			last_login_time = VALUES(last_login_time),
 			create_time = VALUES(create_time),
 			last_off_time = VALUES(last_off_time)
 	</insert>
@@ -582,7 +582,7 @@
 				 union_id = #{bean.unionId},
 			</if>
 			<if test="bean.lastLoginTime != null">
-				 last_device_id = #{bean.lastLoginTime},
+				 last_login_time = #{bean.lastLoginTime},
 			</if>
 			<if test="bean.createTime != null">
 				 create_time = #{bean.createTime},
@@ -641,7 +641,7 @@
 				 union_id = #{bean.unionId},
 			</if>
 			<if test="bean.lastLoginTime != null">
-				 last_device_id = #{bean.lastLoginTime},
+				 last_login_time = #{bean.lastLoginTime},
 			</if>
 			<if test="bean.createTime != null">
 				 create_time = #{bean.createTime},
@@ -704,7 +704,7 @@
 				 union_id = #{bean.unionId},
 			</if>
 			<if test="bean.lastLoginTime != null">
-				 last_device_id = #{bean.lastLoginTime},
+				 last_login_time = #{bean.lastLoginTime},
 			</if>
 			<if test="bean.createTime != null">
 				 create_time = #{bean.createTime},
@@ -767,7 +767,7 @@
 				 union_id = #{bean.unionId},
 			</if>
 			<if test="bean.lastLoginTime != null">
-				 last_device_id = #{bean.lastLoginTime},
+				 last_login_time = #{bean.lastLoginTime},
 			</if>
 			<if test="bean.createTime != null">
 				 create_time = #{bean.createTime},

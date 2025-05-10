@@ -2,6 +2,7 @@ package com.lin.hr.im.service;
 
 import java.util.List;
 
+import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.im.entity.query.UserContactApplyQuery;
 import com.lin.hr.im.entity.po.UserContactApply;
 import com.lin.hr.common.vo.PaginationResultVO;
@@ -88,6 +89,13 @@ public interface UserContactApplyService {
      * 根据ApplyUserIdAndReceiveUserIdAndContactId删除
      */
     Integer deleteUserContactApplyByApplyUserIdAndReceiveUserIdAndContactId(String applyUserId, String receiveUserId, String contactId);
+
+    /**
+     * 申请好友
+     *
+     * @return 加入类型：
+     */
+    Integer applyAdd(TokenUserInfoDto tokenUserInfo, @NotBlank String contactId, String applyInfo);
 
     /**
      * 处理当前用户申请

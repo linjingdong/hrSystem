@@ -71,6 +71,7 @@ public class AccountController extends ABaseController {
     @PostMapping("/login")
     public ResponseVO<Object> login(@RequestBody @Valid LoginReqVo loginReqVo) {
         try {
+            log.info("入参 --> {}", loginReqVo);
             validCheckCode(loginReqVo.getCheckCodeKey(), loginReqVo.getCheckCode());
             UserInfoVo userInfoVo = userInfoService.login(loginReqVo.getAccount(), loginReqVo.getPassword(), loginReqVo.getUserType());
             return getSuccessResponseVO(userInfoVo);
@@ -93,4 +94,5 @@ public class AccountController extends ABaseController {
             throw new BusinessException(ResponseCodeEnum.CODE_600.getCode(), "图形验证码不正确！");
         }
     }
+
 }

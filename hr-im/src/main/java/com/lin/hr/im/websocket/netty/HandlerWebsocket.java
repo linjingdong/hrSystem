@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Lin_jd
@@ -59,13 +60,41 @@ public class HandlerWebsocket extends SimpleChannelInboundHandler<TextWebSocketF
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
             WebSocketServerProtocolHandler.HandshakeComplete complete = (WebSocketServerProtocolHandler.HandshakeComplete) evt;
             HttpHeaders entries = complete.requestHeaders();
+            
+            // 尝试从请求头获取token
             String token = entries.get("token");
+
+            
+            // 如果请求头中没有token，尝试从URL参数中获取
             if (null == token) {
+                String uri = complete.requestUri();
+                
+                if (uri != null && uri.contains("?")) {
+                    try {
+                        String query = uri.substring(uri.indexOf("?") + 1);
+                        String[] params = query.split("&");
+                        for (String param : params) {
+                            String[] keyValue = param.split("=");
+                            if (keyValue.length == 2 && "token".equals(keyValue[0])) {
+                                token = java.net.URLDecoder.decode(keyValue[1], "UTF-8");
+                                break;
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("解析URL参数异常", e);
+                    }
+                }
+            }
+            
+            if (null == token) {
+                log.warn("未找到token，关闭连接");
                 ctx.channel().close();
                 return;
             }
+            
             TokenUserInfoDto tokenUserInfo = redisComponent.getTokenUserInfo(token);
             if (null == tokenUserInfo) {
+                log.warn("token无效，关闭连接");
                 ctx.channel().close();
                 return;
             }

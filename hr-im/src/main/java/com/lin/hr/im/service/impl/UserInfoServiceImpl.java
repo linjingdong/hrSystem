@@ -23,6 +23,7 @@ import com.lin.hr.im.entity.po.UserContact;
 import com.lin.hr.im.entity.query.UserContactQuery;
 import com.lin.hr.im.entity.vo.account.UserInfoVo;
 import com.lin.hr.im.mappers.UserContactMapper;
+import com.lin.hr.im.service.UserContactService;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -55,6 +56,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     private RedisComponent redisComponent;
     @Autowired
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
+    @Autowired
+    private UserContactService userContactService;
 
     /**
      * 根据条件查询列表
@@ -230,7 +233,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfo.setCreateTime(new Date());
         this.userInfoMapper.insert(userInfo);
 
-        // TODO 创建机器人好友
+        userContactService.addContact4Robot(userInfo.getUserId());
     }
 
     @Override
