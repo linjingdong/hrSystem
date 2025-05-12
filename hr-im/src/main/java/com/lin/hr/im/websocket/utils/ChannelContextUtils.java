@@ -87,7 +87,7 @@ public class ChannelContextUtils {
 
         // 更新用户最后连接时间
         UserInfo updateUserInfo = new UserInfo();
-        updateUserInfo.setLastLoginTime(new Date());
+        updateUserInfo.setLastLoginTime(System.currentTimeMillis());
         userInfoMapper.updateByUserId(updateUserInfo, userId);
 
         // 给用户发消息
@@ -211,14 +211,21 @@ public class ChannelContextUtils {
         if (null == userChannel) {
             return;
         }
-
-        if (MessageTypeEnum.ADD_FRIEND_SELF.getType().equals(messageSendDto.getMessageType())) {
-
-        } else {
-            messageSendDto.setContactId(messageSendDto.getSendUserId());
-            messageSendDto.setContactName(messageSendDto.getSendNickName());
-        }
         userChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
+    }
+
+    /**
+     * 发送消息给群组
+     */
+    public void send2Group(MessageSendDto<?> messageSendDto) {
+        if (StringUtils.isBlank(messageSendDto.getContactId())) {
+            return;
+        }
+        ChannelGroup groupChannel = GROUP_CONTEXT_MAP.get(messageSendDto.getContactId());
+        if (null == groupChannel) {
+            return;
+        }
+        groupChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
     }
 
     /**
@@ -235,20 +242,4 @@ public class ChannelContextUtils {
         redisComponent.cleanUserTokenByUserId(userId);
         channel.close();
     }
-
-    /**
-     * 发送消息给群组
-     */
-    public void send2Group(MessageSendDto<?> messageSendDto) {
-        if (StringUtils.isBlank(messageSendDto.getContactId())) {
-            return;
-        }
-        ChannelGroup groupChannel = GROUP_CONTEXT_MAP.get(messageSendDto.getContactId());
-        if (null == groupChannel) {
-            return;
-        }
-        groupChannel.writeAndFlush(JsonUtils.convertObj2Json(messageSendDto));
-    }
-
-
 }

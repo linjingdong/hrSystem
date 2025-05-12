@@ -6,12 +6,15 @@ import com.lin.hr.common.constants.TimeConstant;
 import com.lin.hr.common.controller.ABaseController;
 import com.lin.hr.common.enums.ResponseCodeEnum;
 import com.lin.hr.common.utils.RedisUtils;
+import com.lin.hr.common.utils.StringTools;
 import com.lin.hr.common.vo.ResponseVO;
+import com.lin.hr.im.entity.dto.MessageSendDto;
 import com.lin.hr.im.entity.vo.account.LoginReqVo;
 import com.lin.hr.im.entity.vo.account.RegisterReqVo;
 import com.lin.hr.common.exception.BusinessException;
 import com.lin.hr.im.entity.vo.account.UserInfoVo;
 import com.lin.hr.im.service.UserInfoService;
+import com.lin.hr.im.websocket.utils.MessageHandler;
 import com.wf.captcha.ArithmeticCaptcha;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +44,8 @@ public class AccountController extends ABaseController {
     private UserInfoService userInfoService;
     @Autowired
     private RedisComponent redisComponent;
+    @Autowired
+    private MessageHandler messageHandler;
 
     @PostMapping("/checkCode")
     public ResponseVO<Object> checkCode() {

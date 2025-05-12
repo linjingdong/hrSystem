@@ -25,7 +25,7 @@ public class MessageHandler {
     @Resource
     private ChannelContextUtils channelContextUtils;
 
-    @PostConstruct
+    @PostConstruct // 服务启动的时候，要去监听
     public void listenMessage() {
         RTopic rTopic = redissonClient.getTopic(MESSAGE_TOPIC);
         rTopic.addListener(MessageSendDto.class, (MessageSendDto, sendDto) -> {

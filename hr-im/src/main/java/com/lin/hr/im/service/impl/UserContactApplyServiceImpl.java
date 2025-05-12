@@ -198,6 +198,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
         }
         // 申请人
         String applyUserId = tokenUserInfo.getUserId();
+        String applyUserName = tokenUserInfo.getUserName();
         // 申请内容
         applyInfo = StringUtils.isBlank(applyInfo) ? String.format(ApplyConstant.APPLY_INFO_TEMPLATE, applyInfo) : applyInfo;
 
@@ -245,6 +246,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
         if (null == dbApply) {
             UserContactApply userContactApply = new UserContactApply();
             userContactApply.setApplyUserId(applyUserId);
+            userContactApply.setApplyUserName(applyUserName);
             userContactApply.setReceiveUserId(receiveUserId);
             userContactApply.setContactType(contactType.getType());
             userContactApply.setContactId(contactId);
@@ -266,6 +268,8 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
             messageSendDto.setMessageType(MessageTypeEnum.CONTACT_APPLY.getType());
             messageSendDto.setMessageContent(applyInfo);
             messageSendDto.setContactId(receiveUserId);
+            messageSendDto.setSendUserId(applyUserId);
+            messageSendDto.setSendNickName(applyUserName);
             messageHandler.sendMessage(messageSendDto);
         }
         return joinType;

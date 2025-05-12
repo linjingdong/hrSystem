@@ -229,7 +229,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfo.setUsername(username);
         userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
         userInfo.setUserType(UserTypeEnum.getByCode(userType).getValue());
-        userInfo.setLastOffTime(new Date().getTime());
+        userInfo.setLastOffTime(System.currentTimeMillis());
         userInfo.setCreateTime(new Date());
         this.userInfoMapper.insert(userInfo);
 
@@ -252,6 +252,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (null != lastHeartBeat) {
             throw new BusinessException(ResponseCodeEnum.CODE_601.getCode(), "此账号已经在别处登录，请退出后再登录");
         }
+
         // 查询我的联系人
         UserContactQuery userContactQuery = new UserContactQuery();
         userContactQuery.setUserId(userInfo.getUserId());
@@ -264,8 +265,6 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
 
         // 查询我的群组
-
-
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo(userInfo);
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(userInfo, userInfoVo);

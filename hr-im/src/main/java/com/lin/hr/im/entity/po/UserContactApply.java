@@ -22,6 +22,11 @@ public class UserContactApply implements Serializable {
     private String applyUserId;
 
     /**
+     * 申请人名称
+     */
+    private String applyUserName;
+
+    /**
      * 接收人ID
      */
     private String receiveUserId;
