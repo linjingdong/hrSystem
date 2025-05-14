@@ -40,7 +40,7 @@ public class ChatSessionUser implements Serializable {
     /**
      * 最后接受消息的时间戳
      */
-    private String lastReceiveTime;
+    private Long lastReceiveTime;
 
     /**
      * 群组人数

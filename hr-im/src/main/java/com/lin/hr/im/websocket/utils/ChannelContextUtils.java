@@ -211,6 +211,17 @@ public class ChannelContextUtils {
         if (null == userChannel) {
             return;
         }
+        // 现在是发送者发送消息，但是对于接收者而言，接收到的消息的内容中，联系人应该是发送者（原本发送者发送消息，联系人是接收者的），所以这里做了一下转换
+        if (MessageTypeEnum.ADD_FRIEND_SELF.getType().equals(messageSendDto.getMessageType())) {
+            UserInfo extendData = (UserInfo) messageSendDto.getExtendData();
+            messageSendDto.setMessageType(MessageTypeEnum.ADD_FRIEND.getType());
+            messageSendDto.setContactId(extendData.getUserId());
+            messageSendDto.setContactName(extendData.getUsername());
+            messageSendDto.setExtendData(null);
+        } else {
+            messageSendDto.setContactId(messageSendDto.getSendUserId());
+            messageSendDto.setContactName(messageSendDto.getSendNickName());
+        }
         userChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
     }
 
@@ -241,5 +252,10 @@ public class ChannelContextUtils {
         }
         redisComponent.cleanUserTokenByUserId(userId);
         channel.close();
+    }
+
+    public void addUser2Group(String userId, String groupId) {
+        Channel channel = USER_CONTEXT_MAP.get(userId);
+        add2Group(groupId, channel);
     }
 }

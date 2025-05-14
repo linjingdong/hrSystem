@@ -263,7 +263,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
         }
 
         if (dbApply == null || !UserContactApplyStatusEnum.INIT.getStatus().equals(dbApply.getStatus())) {
-            // 发送ws消息
+            // 发送ws消息，通知联系人
             MessageSendDto<Object> messageSendDto = new MessageSendDto<>();
             messageSendDto.setMessageType(MessageTypeEnum.CONTACT_APPLY.getType());
             messageSendDto.setMessageContent(applyInfo);
