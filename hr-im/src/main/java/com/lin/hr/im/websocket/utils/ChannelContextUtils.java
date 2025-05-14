@@ -15,9 +15,9 @@ import com.lin.hr.im.entity.query.UserContactApplyQuery;
 import com.lin.hr.im.entity.query.UserInfoQuery;
 import com.lin.hr.im.enums.apply.UserContactApplyStatusEnum;
 import com.lin.hr.im.mappers.ChatMessageMapper;
+import com.lin.hr.im.mappers.ChatSessionUserMapper;
 import com.lin.hr.im.mappers.UserContactApplyMapper;
 import com.lin.hr.im.mappers.UserInfoMapper;
-import com.lin.hr.im.service.ChatSessionUserService;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -46,9 +46,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class ChannelContextUtils {
-    private static final ConcurrentHashMap<String, Channel> USER_CONTEXT_MAP = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, ChannelGroup> GROUP_CONTEXT_MAP = new ConcurrentHashMap<>();
-
     @Resource
     private RedisComponent redisComponent;
     @Qualifier("messageSource")
@@ -57,11 +54,15 @@ public class ChannelContextUtils {
     @Autowired
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
     @Autowired
-    private ChatSessionUserService chatSessionUserService;
+    private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
     @Autowired
     private ChatMessageMapper<ChatMessage, ChatMessageQuery> chatMessageMapper;
     @Autowired
     private UserContactApplyMapper<UserContactApply, UserContactApplyQuery> userContactApplyMapper;
+
+    private static final ConcurrentHashMap<String, Channel> USER_CONTEXT_MAP = new ConcurrentHashMap<>();
+
+    private static final ConcurrentHashMap<String, ChannelGroup> GROUP_CONTEXT_MAP = new ConcurrentHashMap<>();
 
     /**
      * 连接netty
@@ -103,7 +104,7 @@ public class ChannelContextUtils {
         ChatSessionUserQuery sessionUserQuery = new ChatSessionUserQuery();
         sessionUserQuery.setUserId(userId);
         sessionUserQuery.setOrderBy("last_receive_time desc");
-        List<ChatSessionUser> chatSessionUsers = chatSessionUserService.findListByParam(sessionUserQuery);
+        List<ChatSessionUser> chatSessionUsers = chatSessionUserMapper.selectList(sessionUserQuery);
         wsInitData.setChatSessionList(chatSessionUsers);
 
         // 2. 查询聊天记录
