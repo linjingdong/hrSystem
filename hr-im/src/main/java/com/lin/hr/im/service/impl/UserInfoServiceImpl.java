@@ -23,6 +23,7 @@ import com.lin.hr.im.entity.po.UserContact;
 import com.lin.hr.im.entity.query.UserContactQuery;
 import com.lin.hr.im.entity.vo.account.UserInfoVo;
 import com.lin.hr.im.mappers.UserContactMapper;
+import com.lin.hr.im.service.ChatSessionUserService;
 import com.lin.hr.im.service.UserContactService;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +48,6 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service("userInfoService")
 public class UserInfoServiceImpl implements UserInfoService {
-
     @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
     @Autowired
@@ -58,6 +58,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
     @Autowired
     private UserContactService userContactService;
+    @Resource
+    private ChatSessionUserService chatSessionUserService;
 
     /**
      * 根据条件查询列表
@@ -306,7 +308,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (!dbUserInfo.getUsername().equals(userInfo.getUsername())) {
             contactNameUpdate = userInfo.getUsername();
         }
-        // TODO 更新会话信息中的昵称信息
+        // 更新会话信息中的昵称信息
+        if (null == contactNameUpdate) {
+            return;
+        }
+        TokenUserInfoDto tokenUserInfoDto = redisComponent.getTokenUserInfoByUserId(userInfo.getUserId());
+        tokenUserInfoDto.setUserName(userInfo.getUsername());
+        redisComponent.saveTokenUserInfo(tokenUserInfoDto);
+        chatSessionUserService.updateRedundancyInfo(contactNameUpdate, userInfo.getUserId());
     }
 
     @Override

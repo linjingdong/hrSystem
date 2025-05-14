@@ -25,6 +25,7 @@ import com.lin.hr.common.utils.StringTools;
 import com.lin.hr.common.config.AppConfig;
 import com.lin.hr.im.entity.vo.gourp.GroupInfoVo;
 import com.lin.hr.im.mappers.*;
+import com.lin.hr.im.service.ChatSessionUserService;
 import com.lin.hr.im.service.UserContactService;
 import com.lin.hr.im.websocket.utils.ChannelContextUtils;
 import com.lin.hr.im.websocket.utils.MessageHandler;
@@ -44,7 +45,6 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service("groupInfoService")
 public class GroupInfoServiceImpl implements GroupInfoService {
-
     @Resource
     private GroupInfoMapper<GroupInfo, GroupInfoQuery> groupInfoMapper;
     @Resource
@@ -67,6 +67,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     private MessageHandler messageHandler;
     @Autowired
     private ChannelContextUtils channelContextUtils;
+    @Resource
+    private ChatSessionUserService chatSessionUserService;
 
     /**
      * 根据条件查询列表
@@ -260,19 +262,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
             if (null == contactNameUpdate) {
                 return;
             }
-
-            ChatSessionUser updatechatSessionUser = new ChatSessionUser();
-            updatechatSessionUser.setContactName(groupInfo.getGroupName());
-            ChatSessionUserQuery chatSessionUserQuery = new ChatSessionUserQuery();
-            chatSessionUserQuery.setContactId(groupInfo.getGroupId());
-            chatSessionUserMapper.updateByParam(updatechatSessionUser, chatSessionUserQuery);
-            // 发送群昵称修改消息
-            MessageSendDto<Object> messageSendDto = new MessageSendDto<>();
-            messageSendDto.setContactId(groupInfo.getGroupId());
-            messageSendDto.setContactType(UserContactTypeEnum.GROUP.getType());
-            messageSendDto.setExtendData(contactNameUpdate);
-            messageSendDto.setMessageType(MessageTypeEnum.GROUP_NAME_UPDATE.getType());
-            messageHandler.sendMessage(messageSendDto);
+            chatSessionUserService.updateRedundancyInfo(contactNameUpdate, groupInfo.getGroupId());
         }
 
         // 处理图片
