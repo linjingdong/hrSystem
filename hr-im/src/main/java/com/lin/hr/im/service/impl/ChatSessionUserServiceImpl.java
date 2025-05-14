@@ -1,12 +1,22 @@
 package com.lin.hr.im.service.impl;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.Resource;
 
 import com.lin.hr.common.enums.PageSize;
+import com.lin.hr.common.enums.user.UserContactStatusEnum;
+import com.lin.hr.common.enums.user.UserContactTypeEnum;
 import com.lin.hr.common.utils.StringTools;
 import com.lin.hr.common.vo.PaginationResultVO;
+import com.lin.hr.im.entity.dto.MessageSendDto;
+import com.lin.hr.im.entity.enums.MessageTypeEnum;
+import com.lin.hr.im.entity.po.UserContact;
+import com.lin.hr.im.entity.query.UserContactQuery;
+import com.lin.hr.im.mappers.UserContactMapper;
+import com.lin.hr.im.service.UserContactService;
+import com.lin.hr.im.websocket.utils.MessageHandler;
 import org.springframework.stereotype.Service;
 
 import com.lin.hr.im.entity.query.ChatSessionUserQuery;
@@ -20,9 +30,12 @@ import com.lin.hr.im.service.ChatSessionUserService;
  */
 @Service("chatSessionUserService")
 public class ChatSessionUserServiceImpl implements ChatSessionUserService {
-
     @Resource
     private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
+    @Resource
+    private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
+    @Resource
+    private MessageHandler messageHandler;
 
     /**
      * 根据条件查询列表
@@ -125,5 +138,39 @@ public class ChatSessionUserServiceImpl implements ChatSessionUserService {
     @Override
     public Integer deleteChatSessionUserByUserIdAndContactId(String userId, String contactId) {
         return this.chatSessionUserMapper.deleteByUserIdAndContactId(userId, contactId);
+    }
+
+    @Override
+    public void updateRedundancyInfo(String contactName, String contactId) {
+        ChatSessionUser updatechatSessionUser = new ChatSessionUser();
+        updatechatSessionUser.setContactName(contactName);
+        ChatSessionUserQuery chatSessionUserQuery = new ChatSessionUserQuery();
+        chatSessionUserQuery.setContactId(contactId);
+        chatSessionUserMapper.updateByParam(updatechatSessionUser, chatSessionUserQuery);
+        // 发送昵称修改消息
+        UserContactTypeEnum userContactType = UserContactTypeEnum.getByPrefix(contactId);
+        if (userContactType == UserContactTypeEnum.GROUP) {
+            sendUpdateMessage(contactName, contactId);
+        } else {
+            UserContactQuery userContactQuery = new UserContactQuery();
+            userContactQuery.setContactType(UserContactTypeEnum.USER.getType());
+            userContactQuery.setContactId(contactId);
+            userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+            List<UserContact> userContacts = userContactMapper.selectList(userContactQuery);
+            for (UserContact userContact : userContacts) {
+                sendUpdateMessage(contactName, userContact.getUserId()); // 发送给哪个和当前联系人为联系人的用户
+            }
+        }
+    }
+
+    private void sendUpdateMessage(String contactName, String contactId) {
+        MessageSendDto<Object> messageSendDto = new MessageSendDto<>();
+        messageSendDto.setContactId(contactId);
+        messageSendDto.setContactType(Objects.requireNonNull(UserContactTypeEnum.getByPrefix(contactId)).getType());
+        messageSendDto.setExtendData(contactName);
+        messageSendDto.setMessageType(MessageTypeEnum.CONTACT_NAME_UPDATE.getType());
+        messageSendDto.setSendUserId(contactId);
+        messageSendDto.setSendNickName(contactName);
+        messageHandler.sendMessage(messageSendDto);
     }
 }

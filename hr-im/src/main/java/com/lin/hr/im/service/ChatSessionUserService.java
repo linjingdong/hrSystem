@@ -70,4 +70,10 @@ public interface ChatSessionUserService {
 	 */
 	Integer deleteChatSessionUserByUserIdAndContactId(String userId,String contactId);
 
+	/**
+	 * 更新会话、联系人冗余信息
+	 * @param contactName 联系人姓名
+	 * @param contactId 联系人id
+	 */
+	void updateRedundancyInfo(String contactName, String contactId);
 }
