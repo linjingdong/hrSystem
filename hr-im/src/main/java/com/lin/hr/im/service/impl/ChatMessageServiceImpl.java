@@ -17,6 +17,7 @@ import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.DateTimePatternEnum;
 import com.lin.hr.common.enums.PageSize;
 import com.lin.hr.common.enums.ResponseCodeEnum;
+import com.lin.hr.common.enums.user.UserContactStatusEnum;
 import com.lin.hr.common.enums.user.UserContactTypeEnum;
 import com.lin.hr.common.exception.BusinessException;
 import com.lin.hr.common.utils.StringTools;
@@ -26,8 +27,11 @@ import com.lin.hr.im.entity.dto.MessageSendDto;
 import com.lin.hr.im.entity.enums.MessageStatusEnum;
 import com.lin.hr.im.entity.enums.MessageTypeEnum;
 import com.lin.hr.im.entity.po.ChatSession;
+import com.lin.hr.im.entity.po.UserContact;
 import com.lin.hr.im.entity.query.ChatSessionQuery;
+import com.lin.hr.im.entity.query.UserContactQuery;
 import com.lin.hr.im.mappers.ChatSessionMapper;
+import com.lin.hr.im.mappers.UserContactMapper;
 import com.lin.hr.im.websocket.utils.MessageHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -62,6 +66,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     private RedisComponent redisComponent;
     @Resource
     private AppConfig appConfig;
+    @Resource
+    private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
 
     /**
      * 根据条件查询列表
@@ -283,7 +289,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        File uploadFile = new File(folder.getPath() + "/" + fileExtName);
+        File uploadFile = new File(folder.getPath() + "/" + fileRealName);
         try {
             file.transferTo(uploadFile);
             cover.transferTo(new File(uploadFile.getPath() + FileConstant.COVER_IMAGE_SUFFIX));
@@ -305,5 +311,45 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         messageSendDto.setMessageType(MessageTypeEnum.FILE_UPLOAD.getType());
         messageSendDto.setContactId(chatMessage.getContactId());
         messageHandler.sendMessage(messageSendDto);
+    }
+
+    @Override
+    public File downloadFile(TokenUserInfoDto tokenUserInfoDto, Long messageId, Boolean showCover) {
+        ChatMessage chatMessage = chatMessageMapper.selectByMessageId(messageId);
+        String contactId = chatMessage.getContactId();
+        UserContactTypeEnum userContactType = UserContactTypeEnum.getByPrefix(contactId);
+        // 1. 校验该文件是否允许下载
+        if (UserContactTypeEnum.USER == userContactType && !tokenUserInfoDto.getUserId().equals(chatMessage.getContactId())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        if (UserContactTypeEnum.GROUP == userContactType) {
+            UserContactQuery userContactQuery = new UserContactQuery();
+            userContactQuery.setUserId(tokenUserInfoDto.getUserId());
+            userContactQuery.setContactType(UserContactTypeEnum.GROUP.getType());
+            userContactQuery.setContactId(contactId);
+            userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+            Integer contactCount = userContactMapper.selectCount(userContactQuery);
+            if (contactCount > 0) {
+                throw new BusinessException(ResponseCodeEnum.CODE_600);
+            }
+        }
+
+        String month = DateUtils.format(new Date(chatMessage.getSendTime()), DateTimePatternEnum.YYYYMM.getPattern());
+        File folder = new File(appConfig.getProjectFolder() + FileConstant.FILE_FOLDER_FILE + month);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        String fileName = chatMessage.getFileName();
+        String fileExtName = StringTools.getFileSuffix(fileName);
+        String fileRealName = messageId + fileExtName;
+        if (showCover !=null && showCover) {
+            fileRealName = fileRealName + FileConstant.COVER_IMAGE_SUFFIX;
+        }
+        File file = new File(folder.getPath() + "/" + fileRealName);
+        if (!file.exists()) {
+            log.info("文件不存在 -> {}", messageId);
+            throw new BusinessException(ResponseCodeEnum.CODE_602);
+        }
+        return file;
     }
 }

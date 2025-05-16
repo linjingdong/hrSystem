@@ -113,4 +113,15 @@ public class StringTools {
     public static String getFileSuffix(String fileName) {
         return fileName.substring(fileName.lastIndexOf("."));
     }
+
+    /**
+     * 判断是否为数字
+     */
+    public static boolean isNumber(String str) {
+        String checkNumber = "^[0-9]+$";
+        if (null == str) {
+            return false;
+        }
+        return str.matches(checkNumber);
+    }
 }

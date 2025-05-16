@@ -1,5 +1,6 @@
 package com.lin.hr.im.service;
 
+import java.io.File;
 import java.util.List;
 
 import com.lin.hr.common.dto.TokenUserInfoDto;
@@ -88,4 +89,13 @@ public interface ChatMessageService {
      * @param cover 缩略图
      */
     void saveMessageFile(String userId, Long messageId, MultipartFile file, MultipartFile cover);
+
+    /**
+     * 下载文件
+     * @param tokenUserInfoDto 用户Token信息
+     * @param fileId 消息id
+     * @param showCover 是否显示封面
+     * @return
+     */
+    File downloadFile(TokenUserInfoDto tokenUserInfoDto, Long fileId, Boolean showCover);
 }

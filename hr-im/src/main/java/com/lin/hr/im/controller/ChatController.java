@@ -2,10 +2,12 @@ package com.lin.hr.im.controller;
 
 import com.lin.hr.common.annotation.GlobalInterceptor;
 import com.lin.hr.common.config.AppConfig;
+import com.lin.hr.common.constants.FileConstant;
 import com.lin.hr.common.controller.ABaseController;
 import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.ResponseCodeEnum;
 import com.lin.hr.common.exception.BusinessException;
+import com.lin.hr.common.utils.StringTools;
 import com.lin.hr.common.vo.ResponseVO;
 import com.lin.hr.im.entity.dto.MessageSendDto;
 import com.lin.hr.im.entity.enums.MessageTypeEnum;
@@ -20,9 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
 
 /**
  * @author Lin_jd
@@ -67,5 +73,57 @@ public class ChatController extends ABaseController {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
         chatMessageService.saveMessageFile(tokenUserInfo.getUserId(), messageId, file, cover);
         return getSuccessResponseVO(null);
+    }
+
+    @GlobalInterceptor
+    @PostMapping("/downloadFile")
+    public void downloadFile(HttpServletResponse response, @NotEmpty String fileId, @NotNull Boolean showCover) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        OutputStream out = null;
+        FileInputStream in = null;
+        try {
+            File file = null;
+            if (!StringTools.isNumber(fileId)) {
+                String avatarFolderName = FileConstant.FILE_FOLDER_FILE + FileConstant.FILE_FOLDER_AVATAR_NAME;
+                String avatarPath = appConfig.getProjectFolder() + avatarFolderName + fileId + FileConstant.IMAGE_SUFFIX;
+                if (showCover) {
+                    avatarPath = avatarPath + FileConstant.COVER_IMAGE_SUFFIX;
+                }
+                file = new File(avatarPath);
+                if (!file.exists()) {
+                    throw new BusinessException(ResponseCodeEnum.CODE_602);
+                }
+            } else {
+                chatMessageService.downloadFile(tokenUserInfo, Long.parseLong(fileId), showCover);
+            }
+            response.setContentType("application/x-msdownload; charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment;");
+            response.setContentLengthLong(file.length());
+            in = new FileInputStream(file);
+            byte[] buffer = new byte[1024];
+            out = response.getOutputStream();
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            out.flush();
+        } catch (Exception e) {
+            log.error("下载文件失败", e);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (Exception e) {
+                    log.error("IO异常", e);
+                }
+            }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception e) {
+                    log.error("IO异常", e);
+                }
+            }
+        }
     }
 }
