@@ -22,4 +22,16 @@ public class FileConstant {
      * cover后缀
      */
     public static final String COVER_IMAGE_SUFFIX = "_cover.png";
+    /**
+     * 常用图片后缀
+     */
+    public static final String[] IMAGE_SUFFIX_LIST = new String[]{".jpeg", ".jpg", ".png", ".gif", ".bmp", ".webp"};
+    /**
+     * 常用视频后缀
+     */
+    public static final String[] VIDEO_SUFFIX_LIST = new String[]{".mp4", ".avi", ".rmvb", ".mkv", ".mov"};
+    /**
+     * 文件大小单位
+     */
+    public static final Long FILE_SIZE_MB = 1024 * 1024L;
 }

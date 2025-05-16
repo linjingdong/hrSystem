@@ -2,9 +2,12 @@ package com.lin.hr.im.service;
 
 import java.util.List;
 
+import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.vo.PaginationResultVO;
+import com.lin.hr.im.entity.dto.MessageSendDto;
 import com.lin.hr.im.entity.query.ChatMessageQuery;
 import com.lin.hr.im.entity.po.ChatMessage;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 聊天消息表 业务接口
@@ -68,4 +71,21 @@ public interface ChatMessageService {
      */
     Integer deleteChatMessageByMessageId(Long messageId);
 
+    /**
+     * 记录消息
+     *
+     * @param chatMessage      消息
+     * @param tokenUserInfoDto Token
+     * @return 发送消息DTO
+     */
+    MessageSendDto<Object> saveMessage(ChatMessage chatMessage, TokenUserInfoDto tokenUserInfoDto);
+
+    /**
+     * 上传图片，并通知客户端上传成功
+     * @param userId 用户id
+     * @param messageId 消息id
+     * @param file 原文件
+     * @param cover 缩略图
+     */
+    void saveMessageFile(String userId, Long messageId, MultipartFile file, MultipartFile cover);
 }

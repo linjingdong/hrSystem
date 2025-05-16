@@ -106,4 +106,11 @@ public class StringTools {
     public static String getChatSession4Group(String contactId) {
         return encodeMd5(contactId);
     }
+
+    /**
+     * 获取文件后缀
+     */
+    public static String getFileSuffix(String fileName) {
+        return fileName.substring(fileName.lastIndexOf("."));
+    }
 }
