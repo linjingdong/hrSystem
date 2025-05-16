@@ -327,9 +327,34 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         updateUserContact.setStatus(UserContactStatusEnum.DEL.getStatus());
         this.userContactService.updateByParam(updateUserContact, userContactQuery);
 
-        // TODO 移除相关群员的联系人缓存
+        // 移除相关群员的联系人缓存
+        List<UserContact> userContacts = userContactMapper.selectList(userContactQuery);
+        for (UserContact userContact : userContacts) {
+            redisComponent.removeUserContact(userContact.getUserId(), userContact.getContactId());
+        }
 
-        // TODO 发消息 1、更新会话消息 2、记录群消息 3、发送解散通知消息
+        // 发消息 1、更新会话消息 2、记录群消息 3、发送解散通知消息
+        String sessionId = StringTools.getChatSession4Group(groupId);
+        Date curDate = new Date();
+        String messageContent = MessageTypeEnum.DISSOLUTION_GROUP.getInitMessage();
+
+        ChatSession chatSession = new ChatSession();
+        chatSession.setLastMessage(messageContent);
+        chatSession.setLastReceiveTime(curDate.getTime());
+        chatSessionMapper.updateBySessionId(chatSession, sessionId);
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setSessionId(sessionId);
+        chatMessage.setSendTime(curDate.getTime());
+        chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
+        chatMessage.setStatus(MessageStatusEnum.SENDED.getStatus());
+        chatMessage.setMessageType(MessageTypeEnum.DISSOLUTION_GROUP.getType());
+        chatMessage.setContactId(groupId);
+        chatMessage.setMessageContent(messageContent);
+        chatMessageMapper.insert(chatMessage);
+        MessageSendDto<Object> messageSendDto = new MessageSendDto<>();
+        BeanUtils.copyProperties(chatMessage, messageSendDto);
+        messageHandler.sendMessage(messageSendDto);
     }
 
     private GroupInfo getGroupInfoCommon(String userId, String groupId) {
