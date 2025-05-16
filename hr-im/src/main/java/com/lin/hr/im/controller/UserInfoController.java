@@ -8,6 +8,7 @@ import com.lin.hr.common.vo.ResponseVO;
 import com.lin.hr.im.constant.RegexpConstant;
 import com.lin.hr.im.entity.po.UserInfo;
 import com.lin.hr.im.service.UserInfoService;
+import com.lin.hr.im.websocket.utils.ChannelContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,8 @@ import javax.validation.constraints.Pattern;
 public class UserInfoController extends ABaseController {
     @Autowired
     private UserInfoService userInfoService;
+    @Autowired
+    private ChannelContextUtils channelContextUtils;
 
     @PostMapping("/getUserInfo")
     @GlobalInterceptor
@@ -55,8 +58,8 @@ public class UserInfoController extends ABaseController {
         UserInfo userInfo = new UserInfo();
         userInfo.setPassword(StringTools.encodeMd5(password));
         userInfoService.updateUserInfoByUserId(userInfo, tokenUserInfo.getUserId());
-
-        // TODO 强制退出，重新登录
+        // 强制退出，重新登录
+        channelContextUtils.closeContext(tokenUserInfo.getUserId());
         return getSuccessResponseVO(null);
     }
 
@@ -64,7 +67,8 @@ public class UserInfoController extends ABaseController {
     @GlobalInterceptor
     public ResponseVO<Object> logout() {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
-        // TODO 强制退出，重新登录，关闭ws连接
+        // 强制退出，重新登录，关闭ws连接
+        channelContextUtils.closeContext(tokenUserInfo.getUserId());
         return getSuccessResponseVO(null);
     }
 }

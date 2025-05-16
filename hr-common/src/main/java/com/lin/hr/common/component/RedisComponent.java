@@ -69,6 +69,7 @@ public class RedisComponent {
 
     /**
      * 通过userId获取Token
+     *
      * @param userId 用户id
      * @return token
      */
@@ -136,5 +137,12 @@ public class RedisComponent {
     public List<String> getUserContactIds(String userId) {
         List<Object> objectList = redisUtils.getQueueList(RedisKeyConstant.REDIS_KEY_USER_CONTACT + userId);
         return objectList.stream().map(Object::toString).collect(Collectors.toList());
+    }
+
+    /**
+     * 删除缓存当中的联系人
+     */
+    public void removeUserContact(String userId, String contactId) {
+        redisUtils.remove(RedisKeyConstant.REDIS_KEY_USER_CONTACT + userId, contactId);
     }
 }
