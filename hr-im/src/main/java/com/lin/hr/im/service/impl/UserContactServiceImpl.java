@@ -435,8 +435,10 @@ public class UserContactServiceImpl implements UserContactService {
             friendContact.setLastUpdateTime(curDate);
         }
         userContactMapper.updateByUserIdAndContactId(friendContact, contactId, userId);
-        // TODO 从缓存我的好友列表中删除/拉黑好友
-        // TODO 从缓存好友的列表中删除/拉黑我
+        // 从缓存我的好友列表中删除/拉黑好友
+        redisComponent.removeUserContact(contactId, userId);
+        // 从缓存好友的列表中删除/拉黑我
+        redisComponent.removeUserContact(userId, contactId);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.lin.hr.im.entity.po;
 
 import com.lin.hr.common.enums.user.UserContactTypeEnum;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -53,6 +54,9 @@ public class ChatSessionUser implements Serializable {
     private Integer contactType;
 
     public Integer getContactType() {
+        if (StringUtils.isEmpty(contactId)) {
+            return null;
+        }
         return Objects.requireNonNull(UserContactTypeEnum.getByPrefix(contactId)).getType();
     }
 

@@ -15,16 +15,20 @@ import com.lin.hr.common.constants.FileConstant;
 import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.ResponseCodeEnum;
 import com.lin.hr.common.enums.user.UserContactStatusEnum;
+import com.lin.hr.common.enums.user.UserContactTypeEnum;
 import com.lin.hr.common.exception.BusinessException;
 import com.lin.hr.common.config.AppConfig;
 import com.lin.hr.common.enums.user.UserStatusEnum;
 import com.lin.hr.common.enums.user.UserTypeEnum;
+import com.lin.hr.im.entity.dto.MessageSendDto;
+import com.lin.hr.im.entity.enums.MessageTypeEnum;
 import com.lin.hr.im.entity.po.UserContact;
 import com.lin.hr.im.entity.query.UserContactQuery;
 import com.lin.hr.im.entity.vo.account.UserInfoVo;
 import com.lin.hr.im.mappers.UserContactMapper;
 import com.lin.hr.im.service.ChatSessionUserService;
 import com.lin.hr.im.service.UserContactService;
+import com.lin.hr.im.websocket.utils.MessageHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -51,15 +55,17 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
     @Autowired
-    private AppConfig appConfig;
-    @Autowired
-    private RedisComponent redisComponent;
-    @Autowired
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
     @Autowired
     private UserContactService userContactService;
     @Resource
     private ChatSessionUserService chatSessionUserService;
+    @Autowired
+    private RedisComponent redisComponent;
+    @Autowired
+    private MessageHandler messageHandler;
+    @Autowired
+    private AppConfig appConfig;
 
     /**
      * 根据条件查询列表
@@ -332,7 +338,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public void forceOffLine(String userId) {
-        // TODO 强制下线，发送ws
+        MessageSendDto<Object> messageSendDto = new MessageSendDto<>();
+        messageSendDto.setContactType(UserContactTypeEnum.USER.getType());
+        messageSendDto.setMessageType(MessageTypeEnum.FORCE_OFF_LINE.getType());
+        messageSendDto.setContactId(userId);
+        messageHandler.sendMessage(messageSendDto);
     }
 
     private TokenUserInfoDto getTokenUserInfo(UserInfo userInfo) {
