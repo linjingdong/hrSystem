@@ -313,7 +313,7 @@ public class UserContactServiceImpl implements UserContactService {
             GroupInfo groupInfo = groupInfoMapper.selectByGroupId(contactId);
             chatSessionUser.setContactName(groupInfo.getGroupName());
             chatSessionUser.setSessionId(sessionId);
-            this.chatSessionUserMapper.insert(chatSessionUser);
+            this.chatSessionUserMapper.insertOrUpdate(chatSessionUser);
 
             UserInfo applyUserInfo = this.userInfoMapper.selectByUserId(applyUserId);
             String sendMessage = String.format(MessageTypeEnum.ADD_GROUP.getInitMessage(), applyUserInfo.getUsername());

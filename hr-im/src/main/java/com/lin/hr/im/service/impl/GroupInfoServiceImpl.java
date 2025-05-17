@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import com.lin.hr.common.component.RedisComponent;
+import com.lin.hr.common.constants.Constant;
 import com.lin.hr.common.constants.FileConstant;
 import com.lin.hr.common.dto.SysSettingDto;
+import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.enums.PageSize;
 import com.lin.hr.common.enums.ResponseCodeEnum;
 import com.lin.hr.im.entity.dto.MessageSendDto;
@@ -31,6 +31,7 @@ import com.lin.hr.im.websocket.utils.ChannelContextUtils;
 import com.lin.hr.im.websocket.utils.MessageHandler;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 
@@ -45,18 +46,10 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service("groupInfoService")
 public class GroupInfoServiceImpl implements GroupInfoService {
-    @Resource
-    private GroupInfoMapper<GroupInfo, GroupInfoQuery> groupInfoMapper;
-    @Resource
-    private RedisComponent redisComponent;
-    @Resource
-    private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
-    @Resource
-    private UserContactService userContactService;
-    @Resource
-    private AppConfig appConfig;
     @Autowired
-    private UserContactApplyServiceImpl userContactApplyService;
+    private GroupInfoMapper<GroupInfo, GroupInfoQuery> groupInfoMapper;
+    @Autowired
+    private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
     @Autowired
     private ChatSessionMapper<ChatSession, ChatSessionQuery> chatSessionMapper;
     @Autowired
@@ -64,11 +57,22 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     @Autowired
     private ChatMessageMapper<ChatMessage, ChatMessageQuery> chatMessageMapper;
     @Autowired
-    private MessageHandler messageHandler;
+    private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
+    @Autowired
+    @Lazy
+    private GroupInfoService groupInfoService;
+    @Autowired
+    private UserContactService userContactService;
     @Autowired
     private ChannelContextUtils channelContextUtils;
-    @Resource
+    @Autowired
     private ChatSessionUserService chatSessionUserService;
+    @Autowired
+    private RedisComponent redisComponent;
+    @Autowired
+    private MessageHandler messageHandler;
+    @Autowired
+    private AppConfig appConfig;
 
     /**
      * 根据条件查询列表
@@ -367,5 +371,68 @@ public class GroupInfoServiceImpl implements GroupInfoService {
             throw new BusinessException("群聊不存在或已解散");
         }
         return groupInfo;
+    }
+
+    @Override
+    public void addOrRemoveGroupUser(TokenUserInfoDto tokenUserInfoDto, String groupId, String selectContacts, Integer opType) {
+        GroupInfo groupInfo = groupInfoMapper.selectByGroupId(groupId);
+        if (null == groupInfo || !groupInfo.getGroupOwnerId().equals(tokenUserInfoDto.getUserId())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        String[] contactIds = selectContacts.split(",");
+        for (String contactId : contactIds) {
+            if (Constant.ZERO.equals(opType)) {
+                // 1. 移除联系人
+                groupInfoService.leaveGroup(contactId, groupId, MessageTypeEnum.REMOVE_GROUP);
+            } else {
+                // 2. 添加联系人
+                userContactService.addContact(contactId, null, groupId, UserContactTypeEnum.GROUP.getType(), null);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = BusinessException.class)
+    public void leaveGroup(String userId, String groupId, MessageTypeEnum messageTypeEnum) {
+        GroupInfo groupInfo = groupInfoMapper.selectByGroupId(groupId);
+        if (null == groupInfo) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        if (userId.equals(groupInfo.getGroupOwnerId())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        Integer count = userContactMapper.deleteByUserIdAndContactId(userId, groupId);
+        if (count == 0) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        UserInfo userInfo = userInfoMapper.selectByUserId(userId);
+        String sessionId = StringTools.getChatSession4Group(groupId);
+        Date curDate = new Date();
+        String messageContent = String.format(messageTypeEnum.getInitMessage(), userInfo.getUsername());
+
+        ChatSession chatSession = new ChatSession();
+        chatSession.setLastMessage(messageContent);
+        chatSession.setLastReceiveTime(curDate.getTime());
+        chatSessionMapper.updateBySessionId(chatSession, sessionId);
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setSessionId(sessionId);
+        chatMessage.setSendTime(curDate.getTime());
+        chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
+        chatMessage.setStatus(MessageStatusEnum.SENDED.getStatus());
+        chatMessage.setMessageType(messageTypeEnum.getType());
+        chatMessage.setContactId(groupId);
+        chatMessage.setMessageContent(messageContent);
+        chatMessageMapper.insert(chatMessage);
+
+        UserContactQuery userContactQuery = new UserContactQuery();
+        userContactQuery.setContactId(groupId);
+        userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+        Integer memberCount = this.userContactMapper.selectCount(userContactQuery);
+        MessageSendDto<Object> messageSendDto = new MessageSendDto<>();
+        BeanUtils.copyProperties(chatMessage, messageSendDto);
+        messageSendDto.setExtendData(userId);
+        messageSendDto.setMemberCount(memberCount);
+        messageHandler.sendMessage(messageSendDto);
     }
 }

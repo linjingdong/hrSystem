@@ -3,6 +3,8 @@ package com.lin.hr.im.service;
 import java.io.IOException;
 import java.util.List;
 
+import com.lin.hr.common.dto.TokenUserInfoDto;
+import com.lin.hr.im.entity.enums.MessageTypeEnum;
 import com.lin.hr.im.entity.query.GroupInfoQuery;
 import com.lin.hr.im.entity.po.GroupInfo;
 import com.lin.hr.common.vo.PaginationResultVO;
@@ -91,4 +93,14 @@ public interface GroupInfoService {
      * 解散群组
      */
     void dissolutionGroup(String groupOwenId, String groupId);
+
+    /**
+     * 添加或移除群组成员
+     */
+    void addOrRemoveGroupUser(TokenUserInfoDto tokenUserInfoDto, String groupId, String selectContacts, Integer opType);
+
+    /**
+     * 退出群聊
+     */
+    void leaveGroup(String userId, String groupId, MessageTypeEnum messageTypeEnum);
 }
