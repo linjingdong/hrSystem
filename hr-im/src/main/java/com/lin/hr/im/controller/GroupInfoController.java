@@ -4,6 +4,7 @@ import com.lin.hr.common.annotation.GlobalInterceptor;
 import com.lin.hr.common.controller.ABaseController;
 import com.lin.hr.common.dto.TokenUserInfoDto;
 import com.lin.hr.common.vo.ResponseVO;
+import com.lin.hr.im.entity.enums.MessageTypeEnum;
 import com.lin.hr.im.entity.po.GroupInfo;
 import com.lin.hr.im.entity.query.GroupInfoQuery;
 import com.lin.hr.im.service.GroupInfoService;
@@ -63,13 +64,37 @@ public class GroupInfoController extends ABaseController {
     @PostMapping("/getGroupInfo")
     public ResponseVO<Object> getGroupInfo(@NotEmpty String groupId) {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
-        return getSuccessResponseVO(groupInfoService.getGroupInfo(tokenUserInfo.getUserId(),groupId));
+        return getSuccessResponseVO(groupInfoService.getGroupInfo(tokenUserInfo.getUserId(), groupId));
     }
 
     @GlobalInterceptor
     @PostMapping("/getGroupInfo4Chat")
     public ResponseVO<Object> getGroupInfo4Chat(@NotEmpty String groupId) {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
-        return getSuccessResponseVO(groupInfoService.getGroupInfo4Chat(tokenUserInfo.getUserId(),groupId));
+        return getSuccessResponseVO(groupInfoService.getGroupInfo4Chat(tokenUserInfo.getUserId(), groupId));
+    }
+
+    @GlobalInterceptor
+    @PostMapping("/addOrRemoveGroupUser")
+    public ResponseVO<Object> addOrRemoveGroupUser(@NotEmpty String groupId, @NotEmpty String selectContacts, @NotEmpty Integer opType) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        groupInfoService.addOrRemoveGroupUser(tokenUserInfo, groupId, selectContacts, opType);
+        return getSuccessResponseVO("操作成功");
+    }
+
+    @GlobalInterceptor
+    @PostMapping("/leaveGroup")
+    public ResponseVO<Object> leaveGroup(@NotEmpty String groupId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        groupInfoService.leaveGroup(tokenUserInfo.getUserId(), groupId, MessageTypeEnum.LEAVE_GROUP);
+        return getSuccessResponseVO("操作成功");
+    }
+
+    @GlobalInterceptor
+    @PostMapping("/dissolutionGroup")
+    public ResponseVO<Object> dissolutionGroup(@NotEmpty String groupId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        groupInfoService.dissolutionGroup(tokenUserInfo.getUserId(), groupId);
+        return getSuccessResponseVO("操作成功");
     }
 }
