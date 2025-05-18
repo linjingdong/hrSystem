@@ -126,4 +126,14 @@ public class ChatController extends ABaseController {
             }
         }
     }
+
+    /**
+     * 获取会话聊天记录
+     */
+    @GlobalInterceptor
+    @PostMapping("getChatMessageInfo")
+    public ResponseVO<Object> getChatMessageInfo(@NotEmpty String sessionId, Integer count) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
+        return getSuccessResponseVO(chatMessageService.getMessageBySessionId(tokenUserInfo.getUserId(), sessionId, count));
+    }
 }

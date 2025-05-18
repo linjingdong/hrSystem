@@ -221,7 +221,7 @@ public class ChannelContextUtils {
             messageSendDto.setExtendData(null);
         } else {
             messageSendDto.setContactId(messageSendDto.getSendUserId());
-            messageSendDto.setContactName(messageSendDto.getSendNickName());
+            messageSendDto.setContactName(messageSendDto.getSendUserNickName());
         }
         userChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
     }

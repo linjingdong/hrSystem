@@ -191,9 +191,9 @@ public class GroupInfoServiceImpl implements GroupInfoService {
                 throw new BusinessException("最多支持创建" + sysSetting.getMaxGroupCount() + "个群聊");
             }
 
-            if (null == avatarFile) {
-                throw new BusinessException(ResponseCodeEnum.CODE_600);
-            }
+//            if (null == avatarFile) {
+//                throw new BusinessException(ResponseCodeEnum.CODE_600);
+//            }
 
             groupInfo.setCreateTime(curDate);
             groupInfo.setGroupId(StringTools.getGroupId());
@@ -234,6 +234,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
             chatMessage.setContactId(groupInfo.getGroupId());
             chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
             chatMessage.setStatus(MessageStatusEnum.SENDED.getStatus());
+            chatMessage.setSendUserId(groupInfo.getGroupOwnerId());
             chatMessageMapper.insert(chatMessage);
 
             // 将群组添加到该用户联系人

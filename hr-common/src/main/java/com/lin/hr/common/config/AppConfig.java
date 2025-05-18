@@ -27,4 +27,7 @@ public class AppConfig {
      */
     @Value("${admin.account:}")
     private String adminAccount;
+
+    @Value("${deepSeek.token}")
+    private String deepSeekToken;
 }

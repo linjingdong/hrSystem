@@ -228,7 +228,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
             case USER: // 用户
                 UserInfo userInfo = userInfoMapper.selectByUserId(applyUserId);
                 if (null == userInfo) {
-                    throw new BusinessException("改用户不存在！");
+                    throw new BusinessException("该用户不存在！");
                 }
                 // 一定要申请
                 joinType = 1;
@@ -264,12 +264,14 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
 
         if (dbApply == null || !UserContactApplyStatusEnum.INIT.getStatus().equals(dbApply.getStatus())) {
             // 发送ws消息，通知联系人
+            UserContactApply userContactApply = userContactApplyMapper.selectByApplyUserIdAndReceiveUserIdAndContactId(applyUserId, receiveUserId, contactId);
             MessageSendDto<Object> messageSendDto = new MessageSendDto<>();
             messageSendDto.setMessageType(MessageTypeEnum.CONTACT_APPLY.getType());
             messageSendDto.setMessageContent(applyInfo);
             messageSendDto.setContactId(receiveUserId);
             messageSendDto.setSendUserId(applyUserId);
-            messageSendDto.setSendNickName(applyUserName);
+            messageSendDto.setSendUserNickName(applyUserName);
+            messageSendDto.setExtendData(userContactApply.getApplyId());
             messageHandler.sendMessage(messageSendDto);
         }
         return joinType;

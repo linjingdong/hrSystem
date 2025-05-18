@@ -10,6 +10,8 @@ import com.lin.hr.im.entity.query.ChatMessageQuery;
 import com.lin.hr.im.entity.po.ChatMessage;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotEmpty;
+
 /**
  * 聊天消息表 业务接口
  */
@@ -83,19 +85,29 @@ public interface ChatMessageService {
 
     /**
      * 上传图片，并通知客户端上传成功
-     * @param userId 用户id
+     *
+     * @param userId    用户id
      * @param messageId 消息id
-     * @param file 原文件
-     * @param cover 缩略图
+     * @param file      原文件
+     * @param cover     缩略图
      */
     void saveMessageFile(String userId, Long messageId, MultipartFile file, MultipartFile cover);
 
     /**
      * 下载文件
+     *
      * @param tokenUserInfoDto 用户Token信息
-     * @param fileId 消息id
-     * @param showCover 是否显示封面
-     * @return
+     * @param fileId           消息id
+     * @param showCover        是否显示封面
      */
     File downloadFile(TokenUserInfoDto tokenUserInfoDto, Long fileId, Boolean showCover);
+
+    /**
+     * 获取会话聊天记录
+     *
+     * @param userId    用户id
+     * @param sessionId 会话id
+     * @return 聊天记录列表
+     */
+    List<ChatMessage> getMessageBySessionId(String userId, @NotEmpty String sessionId, Integer count);
 }

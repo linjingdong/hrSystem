@@ -33,7 +33,7 @@ public class MessageSendDto<T> implements Serializable {
     /**
      * 发送人名称
      */
-    private String sendNickName;
+    private String sendUserNickName;
 
     /**
      * 联系人id

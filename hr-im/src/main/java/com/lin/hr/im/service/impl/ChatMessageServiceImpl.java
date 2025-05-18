@@ -2,8 +2,10 @@ package com.lin.hr.im.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -22,16 +24,18 @@ import com.lin.hr.common.enums.user.UserContactTypeEnum;
 import com.lin.hr.common.exception.BusinessException;
 import com.lin.hr.common.utils.StringTools;
 import com.lin.hr.common.vo.PaginationResultVO;
-import com.lin.hr.im.controller.AccountController;
 import com.lin.hr.im.entity.dto.MessageSendDto;
 import com.lin.hr.im.entity.enums.MessageStatusEnum;
 import com.lin.hr.im.entity.enums.MessageTypeEnum;
 import com.lin.hr.im.entity.po.ChatSession;
+import com.lin.hr.im.entity.po.ChatSessionUser;
 import com.lin.hr.im.entity.po.UserContact;
-import com.lin.hr.im.entity.query.ChatSessionQuery;
-import com.lin.hr.im.entity.query.UserContactQuery;
+import com.lin.hr.im.entity.query.*;
 import com.lin.hr.im.mappers.ChatSessionMapper;
+import com.lin.hr.im.mappers.ChatSessionUserMapper;
 import com.lin.hr.im.mappers.UserContactMapper;
+import com.lin.hr.im.utils.ApiUtils;
+import com.lin.hr.im.utils.vo.MessageContentVo;
 import com.lin.hr.im.websocket.utils.MessageHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -40,10 +44,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import com.lin.hr.im.entity.query.ChatMessageQuery;
 import com.lin.hr.im.entity.po.ChatMessage;
 
-import com.lin.hr.im.entity.query.SimplePage;
 import com.lin.hr.im.mappers.ChatMessageMapper;
 import com.lin.hr.im.service.ChatMessageService;
 import org.springframework.util.StringUtils;
@@ -61,13 +63,17 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     @Resource
     private ChatSessionMapper<ChatSession, ChatSessionQuery> chatSessionMapper;
     @Resource
+    private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
+    @Resource
+    private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
+    @Resource
     private MessageHandler messageHandler;
     @Resource
     private RedisComponent redisComponent;
     @Resource
     private AppConfig appConfig;
-    @Resource
-    private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
+    @Autowired
+    private ApiUtils apiUtils;
 
     /**
      * 根据条件查询列表
@@ -242,14 +248,87 @@ public class ChatMessageServiceImpl implements ChatMessageService {
             robot.setUserName(sysSetting.getRobotNickName());
             ChatMessage robotChatMessage = new ChatMessage();
             robotChatMessage.setContactId(sendUserId);
-            // TODO 对接deepSeek
-            robotChatMessage.setMessageContent("我只是一个机器人无法识别你的消息");
+            
+            String response;
+            try {
+                // 尝试获取历史消息并调用DeepSeek API
+                List<MessageContentVo> messageContentVos;
+                try {
+                    messageContentVos = covertMessageContentList(sessionId, tokenUserInfoDto.getUserId(), messageContent);
+                } catch (Exception dbException) {
+                    // 如果获取历史消息出错（例如SQL错误），则不使用历史消息
+                    log.error("获取历史消息失败，将不使用历史上下文", dbException);
+                    messageContentVos = new ArrayList<>();
+                    messageContentVos.add(MessageContentVo.systemMessage(
+                        "你是一个专业的居家康复小助手的身份，可以帮助解答居家康复相关问题。请提供简洁、专业且有礼貌的回答。你的回答必须控制在450个字符以内，请使用连续的文本段落回答，不要使用分点列表，不要使用HTML标签如<br>等，避免超过系统限制。"
+                    ));
+                    messageContentVos.add(MessageContentVo.userMessage(StringTools.cleanHtmlTag(messageContent)));
+                }
+                
+                // 调用DeepSeek API
+                response = apiUtils.dSOpenApiInvoke(messageContentVos);
+            } catch (Exception e) {
+                // 如果DeepSeek API调用失败，使用备用响应
+                log.warn("DeepSeek API调用失败，使用备用响应机制", e);
+                response = apiUtils.getFallbackResponse(messageContent);
+            }
+            
+            // 确保响应不超过数据库字段长度限制 (500字符)
+            final int MAX_MESSAGE_LENGTH = 500;
+            if (response != null && response.length() > MAX_MESSAGE_LENGTH) {
+                log.warn("AI回复超出长度限制({})，将进行截断处理", MAX_MESSAGE_LENGTH);
+                // 截断消息，保留前490个字符并添加"..."指示被截断
+                response = response.substring(0, MAX_MESSAGE_LENGTH - 10) + "...";
+            }
+            
+            robotChatMessage.setMessageContent(response);
             robotChatMessage.setMessageType(MessageTypeEnum.CHAT.getType());
             saveMessage(robotChatMessage, robot);
         } else {
             messageHandler.sendMessage(messageSendDto);
         }
         return messageSendDto;
+    }
+
+    /**
+     * 将历史消息转换为MessageContentVo列表
+     * 仅保留最近的10条消息，防止上下文过长导致超时
+     */
+    private List<MessageContentVo> covertMessageContentList(String sessionId, String userId, String latestMessage) {
+        List<MessageContentVo> messageContentVoList = new ArrayList<>();
+        
+        // 添加系统消息设置AI角色
+        messageContentVoList.add(MessageContentVo.systemMessage(
+            "你是一个专业的居家康复小助手的身份，可以帮助解答居家康复相关问题。请提供简洁、专业且有礼貌的回答。你的回答必须控制在450个字符以内，请使用连续的文本段落回答，不要使用分点列表，不要使用HTML标签如<br>等，避免超过系统限制。"
+        ));
+        
+        // 获取历史消息记录，最多获取20条
+        int maxHistoryMessages = 10;
+        List<ChatMessage> messageChatMessages = chatMessageMapper.selectListBySessionId(sessionId, maxHistoryMessages);
+        
+        // 如果历史消息超过10条，只取最近的10条消息
+        if (messageChatMessages.size() > maxHistoryMessages) {
+            messageChatMessages = messageChatMessages.subList(messageChatMessages.size() - maxHistoryMessages, messageChatMessages.size());
+        }
+        
+        // 转换历史消息
+        for (ChatMessage chatMessage : messageChatMessages) {
+            String sendUserId = chatMessage.getSendUserId();
+            String messageContent = chatMessage.getMessageContent();
+            
+            if (AccountConstant.ROBOT_UID.equals(sendUserId)) {
+                // 机器人发送的消息
+                messageContentVoList.add(MessageContentVo.assistantMessage(StringTools.cleanHtmlTag(messageContent)));
+            } else if (userId.equals(sendUserId)) {
+                // 用户发送的消息
+                messageContentVoList.add(MessageContentVo.userMessage(StringTools.cleanHtmlTag(messageContent)));
+            }
+        }
+        
+        // 添加当前最新消息
+        messageContentVoList.add(MessageContentVo.userMessage(StringTools.cleanHtmlTag(latestMessage)));
+        
+        return messageContentVoList;
     }
 
     @Override
@@ -342,7 +421,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         String fileName = chatMessage.getFileName();
         String fileExtName = StringTools.getFileSuffix(fileName);
         String fileRealName = messageId + fileExtName;
-        if (showCover !=null && showCover) {
+        if (showCover != null && showCover) {
             fileRealName = fileRealName + FileConstant.COVER_IMAGE_SUFFIX;
         }
         File file = new File(folder.getPath() + "/" + fileRealName);
@@ -351,5 +430,20 @@ public class ChatMessageServiceImpl implements ChatMessageService {
             throw new BusinessException(ResponseCodeEnum.CODE_602);
         }
         return file;
+    }
+
+    @Override
+    public List<ChatMessage> getMessageBySessionId(String userId, String sessionId, Integer count) {
+        if (null == sessionId || sessionId.isEmpty()) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        ChatSessionUserQuery chatSessionUserQuery = new ChatSessionUserQuery();
+        chatSessionUserQuery.setUserId(userId);
+        chatSessionUserQuery.setSessionId(sessionId);
+        Integer selectCount = chatSessionUserMapper.selectCount(chatSessionUserQuery);
+        if (selectCount == 0) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        return chatMessageMapper.selectListBySessionId(sessionId, count);
     }
 }

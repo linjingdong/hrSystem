@@ -545,4 +545,13 @@
         from chat_message c where message_id=#{messageId}
     </select>
 
+    <select id="selectListBySessionId" resultMap="base_result_map">
+        SELECT
+        <include refid="base_column_list"/>
+        FROM chat_message c WHERE c.session_id = #{sessionId}
+        <if test="count != null">
+        LIMIT #{count}
+        </if>
+    </select>
+
 </mapper>

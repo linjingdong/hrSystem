@@ -292,7 +292,7 @@ public class UserContactServiceImpl implements UserContactService {
             chatMessage.setSendUserId(applyUserId);
             chatMessage.setSendUserNickName(applyUserInfo.getUsername());
             chatMessage.setSendTime(curDate.getTime());
-            chatMessage.setContactId(contactId);
+            chatMessage.setContactId(contactId);;
             chatMessage.setContactType(UserContactTypeEnum.USER.getType());
             chatMessageMapper.insert(chatMessage);
 
