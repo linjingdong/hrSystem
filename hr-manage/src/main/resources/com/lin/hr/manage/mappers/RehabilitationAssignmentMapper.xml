@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.manage.mappers.RehabilitationAssignmentMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.RehabilitationAssignment">
+		<!--绑定关系ID-->
+		<result column="assignment_id" property="assignmentId"  />
+		<!--康复师ID-->
+		<result column="therapist_id" property="therapistId"  />
+		<!--患者ID-->
+		<result column="user_id" property="userId"  />
+		<!--指导类型（0普通 1专项）-->
+		<result column="assignment_type" property="assignmentType"  />
+		<!--创建时间-->
+		<result column="create_time" property="createTime"  />
+		<!--最后更新时间-->
+		<result column="update_time" property="updateTime"  />
+		<!--关系状态（0无效 1有效）-->
+		<result column="status" property="status"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 r.assignment_id,r.therapist_id,r.user_id,r.assignment_type,r.create_time,
+		 r.update_time,r.status
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.assignmentId != null and query.assignmentId!=''">
+				 and  r.assignment_id = #{query.assignmentId}
+			</if>
+			<if test="query.therapistId != null and query.therapistId!=''">
+				 and  r.therapist_id = #{query.therapistId}
+			</if>
+			<if test="query.userId != null and query.userId!=''">
+				 and  r.user_id = #{query.userId}
+			</if>
+			<if test="query.assignmentType != null">
+				 and  r.assignment_type = #{query.assignmentType}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  r.create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.updateTime != null and query.updateTime!=''">
+				 <![CDATA[ and  r.update_time=str_to_date(#{query.updateTime}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.status != null">
+				 and  r.status = #{query.status}
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.assignmentIdFuzzy!= null  and query.assignmentIdFuzzy!=''">
+				 and  r.assignment_id like concat('%', #{query.assignmentIdFuzzy}, '%')
+			</if>
+			<if test="query.therapistIdFuzzy!= null  and query.therapistIdFuzzy!=''">
+				 and  r.therapist_id like concat('%', #{query.therapistIdFuzzy}, '%')
+			</if>
+			<if test="query.userIdFuzzy!= null  and query.userIdFuzzy!=''">
+				 and  r.user_id like concat('%', #{query.userIdFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  r.create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  r.create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.updateTimeStart!= null and query.updateTimeStart!=''">
+				 <![CDATA[ and  r.update_time>=str_to_date(#{query.updateTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.updateTimeEnd!= null and query.updateTimeEnd!=''">
+				 <![CDATA[ and  r.update_time< date_sub(str_to_date(#{query.updateTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM rehabilitation_assignment r <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM rehabilitation_assignment r <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.lin.hr.manage.entity.po.RehabilitationAssignment">
+		 INSERT INTO rehabilitation_assignment
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.assignmentId != null">
+				 assignment_id,
+			</if>
+			<if test="bean.therapistId != null">
+				 therapist_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.assignmentType != null">
+				 assignment_type,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.assignmentId!=null">
+				 #{bean.assignmentId},
+			</if>
+			<if test="bean.therapistId!=null">
+				 #{bean.therapistId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.assignmentType!=null">
+				 #{bean.assignmentType},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.updateTime!=null">
+				 #{bean.updateTime},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.lin.hr.manage.entity.po.RehabilitationAssignment">
+		 INSERT INTO rehabilitation_assignment
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.assignmentId != null">
+				 assignment_id,
+			</if>
+			<if test="bean.therapistId != null">
+				 therapist_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.assignmentType != null">
+				 assignment_type,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.assignmentId!=null">
+				 #{bean.assignmentId},
+			</if>
+			<if test="bean.therapistId!=null">
+				 #{bean.therapistId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.assignmentType!=null">
+				 #{bean.assignmentType},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.updateTime!=null">
+				 #{bean.updateTime},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.assignmentId!=null">
+				 assignment_id = VALUES(assignment_id),
+			</if>
+			<if test="bean.therapistId!=null">
+				 therapist_id = VALUES(therapist_id),
+			</if>
+			<if test="bean.userId!=null">
+				 user_id = VALUES(user_id),
+			</if>
+			<if test="bean.assignmentType!=null">
+				 assignment_type = VALUES(assignment_type),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+			<if test="bean.updateTime!=null">
+				 update_time = VALUES(update_time),
+			</if>
+			<if test="bean.status!=null">
+				 status = VALUES(status),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationAssignment">
+		 INSERT INTO rehabilitation_assignment(
+			 assignment_id,
+			 therapist_id,
+			 user_id,
+			 assignment_type,
+			 create_time,
+			 update_time,
+			 status
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.assignmentId},
+				 #{item.therapistId},
+				 #{item.userId},
+				 #{item.assignmentType},
+				 #{item.createTime},
+				 #{item.updateTime},
+				 #{item.status}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationAssignment">
+		 INSERT INTO rehabilitation_assignment(
+			 assignment_id,
+			 therapist_id,
+			 user_id,
+			 assignment_type,
+			 create_time,
+			 update_time,
+			 status
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.assignmentId},
+				 #{item.therapistId},
+				 #{item.userId},
+				 #{item.assignmentType},
+				 #{item.createTime},
+				 #{item.updateTime},
+				 #{item.status}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			assignment_id = VALUES(assignment_id),
+			therapist_id = VALUES(therapist_id),
+			user_id = VALUES(user_id),
+			assignment_type = VALUES(assignment_type),
+			create_time = VALUES(create_time),
+			update_time = VALUES(update_time),
+			status = VALUES(status)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.lin.hr.manage.entity.query.RehabilitationAssignmentQuery">
+		 UPDATE rehabilitation_assignment r
+ 		 <set> 
+			<if test="bean.assignmentId != null">
+				 assignment_id = #{bean.assignmentId},
+			</if>
+			<if test="bean.therapistId != null">
+				 therapist_id = #{bean.therapistId},
+			</if>
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.assignmentType != null">
+				 assignment_type = #{bean.assignmentType},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time = #{bean.updateTime},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete r from rehabilitation_assignment r
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据AssignmentId修改-->
+	<update id="updateByAssignmentId" parameterType="com.lin.hr.manage.entity.po.RehabilitationAssignment">
+		 UPDATE rehabilitation_assignment
+ 		 <set> 
+			<if test="bean.therapistId != null">
+				 therapist_id = #{bean.therapistId},
+			</if>
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.assignmentType != null">
+				 assignment_type = #{bean.assignmentType},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time = #{bean.updateTime},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+ 		 </set>
+ 		 where assignment_id=#{assignmentId}
+	</update>
+
+	<!-- 根据AssignmentId删除-->
+	<delete id="deleteByAssignmentId">
+		delete from rehabilitation_assignment where assignment_id=#{assignmentId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByAssignmentId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from rehabilitation_assignment r where assignment_id=#{assignmentId}
+	</select>
+
+	<!-- 根据TherapistIdAndUserId修改-->
+	<update id="updateByTherapistIdAndUserId" parameterType="com.lin.hr.manage.entity.po.RehabilitationAssignment">
+		 UPDATE rehabilitation_assignment
+ 		 <set> 
+			<if test="bean.assignmentId != null">
+				 assignment_id = #{bean.assignmentId},
+			</if>
+			<if test="bean.assignmentType != null">
+				 assignment_type = #{bean.assignmentType},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time = #{bean.updateTime},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+ 		 </set>
+ 		 where therapist_id=#{therapistId} and user_id=#{userId}
+	</update>
+
+	<!-- 根据TherapistIdAndUserId删除-->
+	<delete id="deleteByTherapistIdAndUserId">
+		delete from rehabilitation_assignment where therapist_id=#{therapistId} and user_id=#{userId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByTherapistIdAndUserId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from rehabilitation_assignment r where therapist_id=#{therapistId} and user_id=#{userId}
+	</select>
+
+</mapper>

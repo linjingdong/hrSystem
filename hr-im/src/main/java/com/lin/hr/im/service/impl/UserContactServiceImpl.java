@@ -207,6 +207,7 @@ public class UserContactServiceImpl implements UserContactService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addContact(String applyUserId, String receiveUserId, String contactId, Integer contactType, String applyInfo) {
         // 判断群聊人数与系统群聊人数
         if (UserContactTypeEnum.GROUP.getType().equals(contactType)) {
@@ -215,7 +216,7 @@ public class UserContactServiceImpl implements UserContactService {
             userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
             Integer count = userContactMapper.selectCount(userContactQuery);
             SysSettingDto sysSetting = redisComponent.getSysSetting();
-            if (sysSetting.getMaxGroupCount() > count) {
+            if (sysSetting.getMaxGroupCount() < count) {
                 throw new BusinessException("成员已满，无法加入");
             }
         }

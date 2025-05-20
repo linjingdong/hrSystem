@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.manage.mappers.AiConsultationRecordMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.AiConsultationRecord">
+		<!---->
+		<result column="consultation_id" property="consultationId"  />
+		<!---->
+		<result column="user_id" property="userId"  />
+		<!---->
+		<result column="question_content" property="questionContent"  />
+		<!---->
+		<result column="answer_content" property="answerContent"  />
+		<!---->
+		<result column="send_time" property="sendTime"  />
+		<!---->
+		<result column="receive_time" property="receiveTime"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 a.consultation_id,a.user_id,a.question_content,a.answer_content,a.send_time,
+		 a.receive_time
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.consultationId != null and query.consultationId!=''">
+				 and  a.consultation_id = #{query.consultationId}
+			</if>
+			<if test="query.userId != null and query.userId!=''">
+				 and  a.user_id = #{query.userId}
+			</if>
+			<if test="query.questionContent != null and query.questionContent!=''">
+				 and  a.question_content = #{query.questionContent}
+			</if>
+			<if test="query.answerContent != null and query.answerContent!=''">
+				 and  a.answer_content = #{query.answerContent}
+			</if>
+			<if test="query.sendTime != null and query.sendTime!=''">
+				 <![CDATA[ and  a.send_time=str_to_date(#{query.sendTime}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.receiveTime != null and query.receiveTime!=''">
+				 <![CDATA[ and  a.receive_time=str_to_date(#{query.receiveTime}, '%Y-%m-%d') ]]>
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.consultationIdFuzzy!= null  and query.consultationIdFuzzy!=''">
+				 and  a.consultation_id like concat('%', #{query.consultationIdFuzzy}, '%')
+			</if>
+			<if test="query.userIdFuzzy!= null  and query.userIdFuzzy!=''">
+				 and  a.user_id like concat('%', #{query.userIdFuzzy}, '%')
+			</if>
+			<if test="query.questionContentFuzzy!= null  and query.questionContentFuzzy!=''">
+				 and  a.question_content like concat('%', #{query.questionContentFuzzy}, '%')
+			</if>
+			<if test="query.answerContentFuzzy!= null  and query.answerContentFuzzy!=''">
+				 and  a.answer_content like concat('%', #{query.answerContentFuzzy}, '%')
+			</if>
+			<if test="query.sendTimeStart!= null and query.sendTimeStart!=''">
+				 <![CDATA[ and  a.send_time>=str_to_date(#{query.sendTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.sendTimeEnd!= null and query.sendTimeEnd!=''">
+				 <![CDATA[ and  a.send_time< date_sub(str_to_date(#{query.sendTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.receiveTimeStart!= null and query.receiveTimeStart!=''">
+				 <![CDATA[ and  a.receive_time>=str_to_date(#{query.receiveTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.receiveTimeEnd!= null and query.receiveTimeEnd!=''">
+				 <![CDATA[ and  a.receive_time< date_sub(str_to_date(#{query.receiveTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM ai_consultation_record a <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM ai_consultation_record a <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.lin.hr.manage.entity.po.AiConsultationRecord">
+		 INSERT INTO ai_consultation_record
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.consultationId != null">
+				 consultation_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.questionContent != null">
+				 question_content,
+			</if>
+			<if test="bean.answerContent != null">
+				 answer_content,
+			</if>
+			<if test="bean.sendTime != null">
+				 send_time,
+			</if>
+			<if test="bean.receiveTime != null">
+				 receive_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.consultationId!=null">
+				 #{bean.consultationId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.questionContent!=null">
+				 #{bean.questionContent},
+			</if>
+			<if test="bean.answerContent!=null">
+				 #{bean.answerContent},
+			</if>
+			<if test="bean.sendTime!=null">
+				 #{bean.sendTime},
+			</if>
+			<if test="bean.receiveTime!=null">
+				 #{bean.receiveTime},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.lin.hr.manage.entity.po.AiConsultationRecord">
+		 INSERT INTO ai_consultation_record
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.consultationId != null">
+				 consultation_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.questionContent != null">
+				 question_content,
+			</if>
+			<if test="bean.answerContent != null">
+				 answer_content,
+			</if>
+			<if test="bean.sendTime != null">
+				 send_time,
+			</if>
+			<if test="bean.receiveTime != null">
+				 receive_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.consultationId!=null">
+				 #{bean.consultationId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.questionContent!=null">
+				 #{bean.questionContent},
+			</if>
+			<if test="bean.answerContent!=null">
+				 #{bean.answerContent},
+			</if>
+			<if test="bean.sendTime!=null">
+				 #{bean.sendTime},
+			</if>
+			<if test="bean.receiveTime!=null">
+				 #{bean.receiveTime},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.consultationId!=null">
+				 consultation_id = VALUES(consultation_id),
+			</if>
+			<if test="bean.userId!=null">
+				 user_id = VALUES(user_id),
+			</if>
+			<if test="bean.questionContent!=null">
+				 question_content = VALUES(question_content),
+			</if>
+			<if test="bean.answerContent!=null">
+				 answer_content = VALUES(answer_content),
+			</if>
+			<if test="bean.sendTime!=null">
+				 send_time = VALUES(send_time),
+			</if>
+			<if test="bean.receiveTime!=null">
+				 receive_time = VALUES(receive_time),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.lin.hr.manage.entity.po.AiConsultationRecord">
+		 INSERT INTO ai_consultation_record(
+			 consultation_id,
+			 user_id,
+			 question_content,
+			 answer_content,
+			 send_time,
+			 receive_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.consultationId},
+				 #{item.userId},
+				 #{item.questionContent},
+				 #{item.answerContent},
+				 #{item.sendTime},
+				 #{item.receiveTime}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.lin.hr.manage.entity.po.AiConsultationRecord">
+		 INSERT INTO ai_consultation_record(
+			 consultation_id,
+			 user_id,
+			 question_content,
+			 answer_content,
+			 send_time,
+			 receive_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.consultationId},
+				 #{item.userId},
+				 #{item.questionContent},
+				 #{item.answerContent},
+				 #{item.sendTime},
+				 #{item.receiveTime}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			consultation_id = VALUES(consultation_id),
+			user_id = VALUES(user_id),
+			question_content = VALUES(question_content),
+			answer_content = VALUES(answer_content),
+			send_time = VALUES(send_time),
+			receive_time = VALUES(receive_time)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.lin.hr.manage.entity.query.AiConsultationRecordQuery">
+		 UPDATE ai_consultation_record a
+ 		 <set> 
+			<if test="bean.consultationId != null">
+				 consultation_id = #{bean.consultationId},
+			</if>
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.questionContent != null">
+				 question_content = #{bean.questionContent},
+			</if>
+			<if test="bean.answerContent != null">
+				 answer_content = #{bean.answerContent},
+			</if>
+			<if test="bean.sendTime != null">
+				 send_time = #{bean.sendTime},
+			</if>
+			<if test="bean.receiveTime != null">
+				 receive_time = #{bean.receiveTime},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete a from ai_consultation_record a
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据ConsultationId修改-->
+	<update id="updateByConsultationId" parameterType="com.lin.hr.manage.entity.po.AiConsultationRecord">
+		 UPDATE ai_consultation_record
+ 		 <set> 
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.questionContent != null">
+				 question_content = #{bean.questionContent},
+			</if>
+			<if test="bean.answerContent != null">
+				 answer_content = #{bean.answerContent},
+			</if>
+			<if test="bean.sendTime != null">
+				 send_time = #{bean.sendTime},
+			</if>
+			<if test="bean.receiveTime != null">
+				 receive_time = #{bean.receiveTime},
+			</if>
+ 		 </set>
+ 		 where consultation_id=#{consultationId}
+	</update>
+
+	<!-- 根据ConsultationId删除-->
+	<delete id="deleteByConsultationId">
+		delete from ai_consultation_record where consultation_id=#{consultationId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByConsultationId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from ai_consultation_record a where consultation_id=#{consultationId}
+	</select>
+
+</mapper>

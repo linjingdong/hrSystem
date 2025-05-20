@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class ApiUtils {
     @Autowired
     private AppConfig appConfig;
-    
+
     // 创建一个全局的OkHttpClient实例，配置较长的超时时间
     private final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)  // 连接超时
@@ -77,7 +77,7 @@ public class ApiUtils {
         
         // 发送请求并处理响应，带重试机制
         while (retryCount < maxRetries) {
-            try {
+        try {
                 Response response = client.newCall(request).execute();
                 if (!response.isSuccessful()) {
                     String errorMsg = response.body() != null ? response.body().string() : "Unknown error";
@@ -132,7 +132,7 @@ public class ApiUtils {
                 log.error("未能从DeepSeek响应中提取内容: {}", responseBody);
                 throw new BusinessException(ResponseCodeEnum.CODE_500);
                 
-            } catch (IOException e) {
+        } catch (IOException e) {
                 log.error("deepSeek连接异常 (尝试 {}/{})", retryCount + 1, maxRetries, e);
                 retryCount++;
                 
@@ -157,7 +157,7 @@ public class ApiUtils {
         // 如果所有重试都失败
         log.error("所有DeepSeek API调用重试均失败");
         throw new BusinessException(ResponseCodeEnum.CODE_500);
-    }
+        }
     
     /**
      * 简化版模拟AI回复，当DeepSeek API调用异常时使用

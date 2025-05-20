@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.manage.mappers.RehabilitationFeedbackMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.RehabilitationFeedback">
+		<!--反馈ID-->
+		<result column="feedback_id" property="feedbackId"  />
+		<!--关联计划ID-->
+		<result column="plan_id" property="planId"  />
+		<!--患者ID-->
+		<result column="user_id" property="userId"  />
+		<!--评分（1~5）-->
+		<result column="score" property="score"  />
+		<!--文字反馈-->
+		<result column="feedback" property="feedback"  />
+		<!--提交时间-->
+		<result column="submit_time" property="submitTime"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 r.feedback_id,r.plan_id,r.user_id,r.score,r.feedback,
+		 r.submit_time
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.feedbackId != null and query.feedbackId!=''">
+				 and  r.feedback_id = #{query.feedbackId}
+			</if>
+			<if test="query.planId != null and query.planId!=''">
+				 and  r.plan_id = #{query.planId}
+			</if>
+			<if test="query.userId != null and query.userId!=''">
+				 and  r.user_id = #{query.userId}
+			</if>
+			<if test="query.score != null">
+				 and  r.score = #{query.score}
+			</if>
+			<if test="query.feedback != null and query.feedback!=''">
+				 and  r.feedback = #{query.feedback}
+			</if>
+			<if test="query.submitTime != null and query.submitTime!=''">
+				 <![CDATA[ and  r.submit_time=str_to_date(#{query.submitTime}, '%Y-%m-%d') ]]>
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.feedbackIdFuzzy!= null  and query.feedbackIdFuzzy!=''">
+				 and  r.feedback_id like concat('%', #{query.feedbackIdFuzzy}, '%')
+			</if>
+			<if test="query.planIdFuzzy!= null  and query.planIdFuzzy!=''">
+				 and  r.plan_id like concat('%', #{query.planIdFuzzy}, '%')
+			</if>
+			<if test="query.userIdFuzzy!= null  and query.userIdFuzzy!=''">
+				 and  r.user_id like concat('%', #{query.userIdFuzzy}, '%')
+			</if>
+			<if test="query.feedbackFuzzy!= null  and query.feedbackFuzzy!=''">
+				 and  r.feedback like concat('%', #{query.feedbackFuzzy}, '%')
+			</if>
+			<if test="query.submitTimeStart!= null and query.submitTimeStart!=''">
+				 <![CDATA[ and  r.submit_time>=str_to_date(#{query.submitTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.submitTimeEnd!= null and query.submitTimeEnd!=''">
+				 <![CDATA[ and  r.submit_time< date_sub(str_to_date(#{query.submitTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM rehabilitation_feedback r <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM rehabilitation_feedback r <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.lin.hr.manage.entity.po.RehabilitationFeedback">
+		 INSERT INTO rehabilitation_feedback
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.feedbackId != null">
+				 feedback_id,
+			</if>
+			<if test="bean.planId != null">
+				 plan_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.score != null">
+				 score,
+			</if>
+			<if test="bean.feedback != null">
+				 feedback,
+			</if>
+			<if test="bean.submitTime != null">
+				 submit_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.feedbackId!=null">
+				 #{bean.feedbackId},
+			</if>
+			<if test="bean.planId!=null">
+				 #{bean.planId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.score!=null">
+				 #{bean.score},
+			</if>
+			<if test="bean.feedback!=null">
+				 #{bean.feedback},
+			</if>
+			<if test="bean.submitTime!=null">
+				 #{bean.submitTime},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.lin.hr.manage.entity.po.RehabilitationFeedback">
+		 INSERT INTO rehabilitation_feedback
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.feedbackId != null">
+				 feedback_id,
+			</if>
+			<if test="bean.planId != null">
+				 plan_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.score != null">
+				 score,
+			</if>
+			<if test="bean.feedback != null">
+				 feedback,
+			</if>
+			<if test="bean.submitTime != null">
+				 submit_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.feedbackId!=null">
+				 #{bean.feedbackId},
+			</if>
+			<if test="bean.planId!=null">
+				 #{bean.planId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.score!=null">
+				 #{bean.score},
+			</if>
+			<if test="bean.feedback!=null">
+				 #{bean.feedback},
+			</if>
+			<if test="bean.submitTime!=null">
+				 #{bean.submitTime},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.feedbackId!=null">
+				 feedback_id = VALUES(feedback_id),
+			</if>
+			<if test="bean.planId!=null">
+				 plan_id = VALUES(plan_id),
+			</if>
+			<if test="bean.userId!=null">
+				 user_id = VALUES(user_id),
+			</if>
+			<if test="bean.score!=null">
+				 score = VALUES(score),
+			</if>
+			<if test="bean.feedback!=null">
+				 feedback = VALUES(feedback),
+			</if>
+			<if test="bean.submitTime!=null">
+				 submit_time = VALUES(submit_time),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationFeedback">
+		 INSERT INTO rehabilitation_feedback(
+			 feedback_id,
+			 plan_id,
+			 user_id,
+			 score,
+			 feedback,
+			 submit_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.feedbackId},
+				 #{item.planId},
+				 #{item.userId},
+				 #{item.score},
+				 #{item.feedback},
+				 #{item.submitTime}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationFeedback">
+		 INSERT INTO rehabilitation_feedback(
+			 feedback_id,
+			 plan_id,
+			 user_id,
+			 score,
+			 feedback,
+			 submit_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.feedbackId},
+				 #{item.planId},
+				 #{item.userId},
+				 #{item.score},
+				 #{item.feedback},
+				 #{item.submitTime}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			feedback_id = VALUES(feedback_id),
+			plan_id = VALUES(plan_id),
+			user_id = VALUES(user_id),
+			score = VALUES(score),
+			feedback = VALUES(feedback),
+			submit_time = VALUES(submit_time)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.lin.hr.manage.entity.query.RehabilitationFeedbackQuery">
+		 UPDATE rehabilitation_feedback r
+ 		 <set> 
+			<if test="bean.feedbackId != null">
+				 feedback_id = #{bean.feedbackId},
+			</if>
+			<if test="bean.planId != null">
+				 plan_id = #{bean.planId},
+			</if>
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.score != null">
+				 score = #{bean.score},
+			</if>
+			<if test="bean.feedback != null">
+				 feedback = #{bean.feedback},
+			</if>
+			<if test="bean.submitTime != null">
+				 submit_time = #{bean.submitTime},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete r from rehabilitation_feedback r
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据FeedbackId修改-->
+	<update id="updateByFeedbackId" parameterType="com.lin.hr.manage.entity.po.RehabilitationFeedback">
+		 UPDATE rehabilitation_feedback
+ 		 <set> 
+			<if test="bean.planId != null">
+				 plan_id = #{bean.planId},
+			</if>
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.score != null">
+				 score = #{bean.score},
+			</if>
+			<if test="bean.feedback != null">
+				 feedback = #{bean.feedback},
+			</if>
+			<if test="bean.submitTime != null">
+				 submit_time = #{bean.submitTime},
+			</if>
+ 		 </set>
+ 		 where feedback_id=#{feedbackId}
+	</update>
+
+	<!-- 根据FeedbackId删除-->
+	<delete id="deleteByFeedbackId">
+		delete from rehabilitation_feedback where feedback_id=#{feedbackId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByFeedbackId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from rehabilitation_feedback r where feedback_id=#{feedbackId}
+	</select>
+
+</mapper>

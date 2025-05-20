@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.manage.mappers.RehabilitationTemplateMapper">
+
+    <!--实体映射-->
+    <resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.RehabilitationTemplate">
+        <!--模板ID-->
+        <result column="template_id" property="templateId"/>
+        <!--模板名称-->
+        <result column="template_name" property="templateName"/>
+        <!--康复id-->
+        <result column="type_id" property="typeId"/>
+        <!--康复类型-->
+        <result column="type_name" property="typeName"/>
+        <!--总训练天数-->
+        <result column="total_days" property="totalDays"/>
+        <!--适用人群说明-->
+        <result column="suitable_for" property="suitableFor"/>
+        <!--创建时间-->
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+    <!-- 通用查询结果列-->
+    <sql id="base_column_list">
+        r.template_id,r.template_name,r.type_id,r.total_days,r.suitable_for,r.create_time, t.type_name
+    </sql>
+
+    <sql id="base_condition_filed">
+        <if test="query.templateId != null and query.templateId!=''">
+            and r.template_id = #{query.templateId}
+        </if>
+        <if test="query.templateName != null and query.templateName!=''">
+            and r.template_name = #{query.templateName}
+        </if>
+        <if test="query.typeId != null and query.typeId!=''">
+            and r.type_id = #{query.typeId}
+        </if>
+        <if test="query.totalDays != null">
+            and r.total_days = #{query.totalDays}
+        </if>
+        <if test="query.suitableFor != null and query.suitableFor!=''">
+            and r.suitable_for = #{query.suitableFor}
+        </if>
+        <if test="query.createTime != null and query.createTime!=''">
+            <![CDATA[ and  r.create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+        </if>
+    </sql>
+    <!-- 通用条件列-->
+    <sql id="base_condition">
+        <where>
+            <include refid="base_condition_filed"/>
+        </where>
+    </sql>
+
+    <!-- 通用查询条件列-->
+    <sql id="query_condition">
+        <where>
+            <include refid="base_condition_filed"/>
+            <if test="query.templateIdFuzzy!= null  and query.templateIdFuzzy!=''">
+                and r.template_id like concat('%', #{query.templateIdFuzzy}, '%')
+            </if>
+            <if test="query.templateNameFuzzy!= null  and query.templateNameFuzzy!=''">
+                and r.template_name like concat('%', #{query.templateNameFuzzy}, '%')
+            </if>
+            <if test="query.typeIdFuzzy!= null  and query.typeIdFuzzy!=''">
+                and r.type_id like concat('%', #{query.typeIdFuzzy}, '%')
+            </if>
+            <if test="query.suitableForFuzzy!= null  and query.suitableForFuzzy!=''">
+                and r.suitable_for like concat('%', #{query.suitableForFuzzy}, '%')
+            </if>
+            <if test="query.createTimeStart!= null and query.createTimeStart!=''">
+                <![CDATA[ and  r.create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+                <![CDATA[ and  r.create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+            </if>
+        </where>
+    </sql>
+
+    <!-- 查询集合-->
+    <select id="selectList" resultMap="base_result_map">
+        SELECT
+        <include refid="base_column_list"/>
+        FROM rehabilitation_template r
+        LEFT JOIN rehabilitation_type t
+        ON r.type_id = t.type_id
+        <include refid="query_condition"/>
+        <if test="query.orderBy!=null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage!=null">
+            limit #{query.simplePage.start},#{query.simplePage.end}
+        </if>
+    </select>
+
+    <!-- 查询数量-->
+    <select id="selectCount" resultType="java.lang.Integer">
+        SELECT count(1) FROM rehabilitation_template r
+        <include refid="query_condition"/>
+    </select>
+
+    <!-- 插入 （匹配有值的字段）-->
+    <insert id="insert" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplate">
+        INSERT INTO rehabilitation_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bean.templateId != null">
+                template_id,
+            </if>
+            <if test="bean.templateName != null">
+                template_name,
+            </if>
+            <if test="bean.typeId != null">
+                type_id,
+            </if>
+            <if test="bean.totalDays != null">
+                total_days,
+            </if>
+            <if test="bean.suitableFor != null">
+                suitable_for,
+            </if>
+            <if test="bean.createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bean.templateId!=null">
+                #{bean.templateId},
+            </if>
+            <if test="bean.templateName!=null">
+                #{bean.templateName},
+            </if>
+            <if test="bean.typeId!=null">
+                #{bean.typeId},
+            </if>
+            <if test="bean.totalDays!=null">
+                #{bean.totalDays},
+            </if>
+            <if test="bean.suitableFor!=null">
+                #{bean.suitableFor},
+            </if>
+            <if test="bean.createTime!=null">
+                #{bean.createTime},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 插入或者更新 （匹配有值的字段）-->
+    <insert id="insertOrUpdate" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplate">
+        INSERT INTO rehabilitation_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bean.templateId != null">
+                template_id,
+            </if>
+            <if test="bean.templateName != null">
+                template_name,
+            </if>
+            <if test="bean.typeId != null">
+                type_id,
+            </if>
+            <if test="bean.totalDays != null">
+                total_days,
+            </if>
+            <if test="bean.suitableFor != null">
+                suitable_for,
+            </if>
+            <if test="bean.createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bean.templateId!=null">
+                #{bean.templateId},
+            </if>
+            <if test="bean.templateName!=null">
+                #{bean.templateName},
+            </if>
+            <if test="bean.typeId!=null">
+                #{bean.typeId},
+            </if>
+            <if test="bean.totalDays!=null">
+                #{bean.totalDays},
+            </if>
+            <if test="bean.suitableFor!=null">
+                #{bean.suitableFor},
+            </if>
+            <if test="bean.createTime!=null">
+                #{bean.createTime},
+            </if>
+        </trim>
+        on DUPLICATE key update
+        <trim prefix="" suffix="" suffixOverrides=",">
+            <if test="bean.templateId!=null">
+                template_id = VALUES(template_id),
+            </if>
+            <if test="bean.templateName!=null">
+                template_name = VALUES(template_name),
+            </if>
+            <if test="bean.typeId!=null">
+                type_id = VALUES(type_id),
+            </if>
+            <if test="bean.totalDays!=null">
+                total_days = VALUES(total_days),
+            </if>
+            <if test="bean.suitableFor!=null">
+                suitable_for = VALUES(suitable_for),
+            </if>
+            <if test="bean.createTime!=null">
+                create_time = VALUES(create_time),
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 添加 （批量插入）-->
+    <insert id="insertBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplate">
+        INSERT INTO rehabilitation_template(
+        template_id,
+        template_name,
+        type_id,
+        total_days,
+        suitable_for,
+        create_time
+        )values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.templateId},
+            #{item.templateName},
+            #{item.typeId},
+            #{item.totalDays},
+            #{item.suitableFor},
+            #{item.createTime}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 批量新增修改 （批量插入）-->
+    <insert id="insertOrUpdateBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplate">
+        INSERT INTO rehabilitation_template(
+        template_id,
+        template_name,
+        type_id,
+        total_days,
+        suitable_for,
+        create_time
+        )values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.templateId},
+            #{item.templateName},
+            #{item.typeId},
+            #{item.totalDays},
+            #{item.suitableFor},
+            #{item.createTime}
+            )
+        </foreach>
+        on DUPLICATE key update
+        template_id = VALUES(template_id),
+        template_name = VALUES(template_name),
+        type_id = VALUES(type_id),
+        total_days = VALUES(total_days),
+        suitable_for = VALUES(suitable_for),
+        create_time = VALUES(create_time)
+    </insert>
+
+    <!--多条件修改-->
+    <update id="updateByParam" parameterType="com.lin.hr.manage.entity.query.RehabilitationTemplateQuery">
+        UPDATE rehabilitation_template r
+        <set>
+            <if test="bean.templateId != null">
+                template_id = #{bean.templateId},
+            </if>
+            <if test="bean.templateName != null">
+                template_name = #{bean.templateName},
+            </if>
+            <if test="bean.typeId != null">
+                type_id = #{bean.typeId},
+            </if>
+            <if test="bean.totalDays != null">
+                total_days = #{bean.totalDays},
+            </if>
+            <if test="bean.suitableFor != null">
+                suitable_for = #{bean.suitableFor},
+            </if>
+            <if test="bean.createTime != null">
+                create_time = #{bean.createTime},
+            </if>
+        </set>
+        <include refid="query_condition"/>
+    </update>
+
+    <!--多条件删除-->
+    <delete id="deleteByParam">
+        delete r from rehabilitation_template r
+        <include refid="query_condition"/>
+    </delete>
+
+    <!-- 根据TemplateId修改-->
+    <update id="updateByTemplateId" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplate">
+        UPDATE rehabilitation_template
+        <set>
+            <if test="bean.templateName != null">
+                template_name = #{bean.templateName},
+            </if>
+            <if test="bean.typeId != null">
+                type_id = #{bean.typeId},
+            </if>
+            <if test="bean.totalDays != null">
+                total_days = #{bean.totalDays},
+            </if>
+            <if test="bean.suitableFor != null">
+                suitable_for = #{bean.suitableFor},
+            </if>
+            <if test="bean.createTime != null">
+                create_time = #{bean.createTime},
+            </if>
+        </set>
+        where template_id=#{templateId}
+    </update>
+
+    <!-- 根据TemplateId删除-->
+    <delete id="deleteByTemplateId">
+        delete
+        from rehabilitation_template
+        where template_id = #{templateId}
+    </delete>
+
+    <!-- 根据PrimaryKey获取对象-->
+    <select id="selectByTemplateId" resultMap="base_result_map">
+        select
+        <include refid="base_column_list"/>
+        from rehabilitation_template r where template_id=#{templateId}
+    </select>
+
+</mapper>

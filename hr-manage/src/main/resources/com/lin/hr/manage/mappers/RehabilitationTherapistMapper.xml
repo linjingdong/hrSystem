@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.manage.mappers.RehabilitationTherapistMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.RehabilitationTherapist">
+		<!--康复师ID，关联user_info.user_id-->
+		<result column="therapist_id" property="therapistId"  />
+		<!--擅长的康复类型-->
+		<result column="rehab_type" property="rehabType"  />
+		<!--擅长的康复类型-->
+		<result column="type_name" property="typeName"  />
+		<!--擅长领域-->
+		<result column="specialization" property="specialization"  />
+		<!--职业资质证书信息-->
+		<result column="qualification" property="qualification"  />
+		<!--从业年限-->
+		<result column="experience_years" property="experienceYears"  />
+		<!--个人简介-->
+		<result column="introduction" property="introduction"  />
+		<!--联系电话-->
+		<result column="phone" property="phone"  />
+		<!--联系邮箱-->
+		<result column="email" property="email"  />
+		<!--在职状态（0离职 1在职）-->
+		<result column="status" property="status"  />
+		<!--创建时间-->
+		<result column="create_time" property="createTime"  />
+		<!--最后更新时间-->
+		<result column="update_time" property="updateTime"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 r.therapist_id,r.rehab_type,r.specialization,r.qualification,r.experience_years,
+		 r.introduction,r.phone,r.email,r.status,r.create_time,
+		 r.update_time,t.type_name
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.therapistId != null and query.therapistId!=''">
+				 and  r.therapist_id = #{query.therapistId}
+			</if>
+			<if test="query.rehabType != null and query.rehabType!=''">
+				 and  r.rehab_type = #{query.rehabType}
+			</if>
+			<if test="query.specialization != null and query.specialization!=''">
+				 and  r.specialization = #{query.specialization}
+			</if>
+			<if test="query.qualification != null and query.qualification!=''">
+				 and  r.qualification = #{query.qualification}
+			</if>
+			<if test="query.experienceYears != null">
+				 and  r.experience_years = #{query.experienceYears}
+			</if>
+			<if test="query.introduction != null and query.introduction!=''">
+				 and  r.introduction = #{query.introduction}
+			</if>
+			<if test="query.phone != null and query.phone!=''">
+				 and  r.phone = #{query.phone}
+			</if>
+			<if test="query.email != null and query.email!=''">
+				 and  r.email = #{query.email}
+			</if>
+			<if test="query.status != null">
+				 and  r.status = #{query.status}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  r.create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.updateTime != null and query.updateTime!=''">
+				 <![CDATA[ and  r.update_time=str_to_date(#{query.updateTime}, '%Y-%m-%d') ]]>
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.therapistIdFuzzy!= null  and query.therapistIdFuzzy!=''">
+				 and  r.therapist_id like concat('%', #{query.therapistIdFuzzy}, '%')
+			</if>
+			<if test="query.rehabTypeFuzzy!= null  and query.rehabTypeFuzzy!=''">
+				 and  r.rehab_type like concat('%', #{query.rehabTypeFuzzy}, '%')
+			</if>
+			<if test="query.specializationFuzzy!= null  and query.specializationFuzzy!=''">
+				 and  r.specialization like concat('%', #{query.specializationFuzzy}, '%')
+			</if>
+			<if test="query.qualificationFuzzy!= null  and query.qualificationFuzzy!=''">
+				 and  r.qualification like concat('%', #{query.qualificationFuzzy}, '%')
+			</if>
+			<if test="query.introductionFuzzy!= null  and query.introductionFuzzy!=''">
+				 and  r.introduction like concat('%', #{query.introductionFuzzy}, '%')
+			</if>
+			<if test="query.phoneFuzzy!= null  and query.phoneFuzzy!=''">
+				 and  r.phone like concat('%', #{query.phoneFuzzy}, '%')
+			</if>
+			<if test="query.emailFuzzy!= null  and query.emailFuzzy!=''">
+				 and  r.email like concat('%', #{query.emailFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  r.create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  r.create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.updateTimeStart!= null and query.updateTimeStart!=''">
+				 <![CDATA[ and  r.update_time>=str_to_date(#{query.updateTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.updateTimeEnd!= null and query.updateTimeEnd!=''">
+				 <![CDATA[ and  r.update_time< date_sub(str_to_date(#{query.updateTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM rehabilitation_therapist r <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM rehabilitation_therapist r <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.lin.hr.manage.entity.po.RehabilitationTherapist">
+		 INSERT INTO rehabilitation_therapist
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.therapistId != null">
+				 therapist_id,
+			</if>
+			<if test="bean.rehabType != null">
+				 rehab_type,
+			</if>
+			<if test="bean.specialization != null">
+				 specialization,
+			</if>
+			<if test="bean.qualification != null">
+				 qualification,
+			</if>
+			<if test="bean.experienceYears != null">
+				 experience_years,
+			</if>
+			<if test="bean.introduction != null">
+				 introduction,
+			</if>
+			<if test="bean.phone != null">
+				 phone,
+			</if>
+			<if test="bean.email != null">
+				 email,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.therapistId!=null">
+				 #{bean.therapistId},
+			</if>
+			<if test="bean.rehabType!=null">
+				 #{bean.rehabType},
+			</if>
+			<if test="bean.specialization!=null">
+				 #{bean.specialization},
+			</if>
+			<if test="bean.qualification!=null">
+				 #{bean.qualification},
+			</if>
+			<if test="bean.experienceYears!=null">
+				 #{bean.experienceYears},
+			</if>
+			<if test="bean.introduction!=null">
+				 #{bean.introduction},
+			</if>
+			<if test="bean.phone!=null">
+				 #{bean.phone},
+			</if>
+			<if test="bean.email!=null">
+				 #{bean.email},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.updateTime!=null">
+				 #{bean.updateTime},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.lin.hr.manage.entity.po.RehabilitationTherapist">
+		 INSERT INTO rehabilitation_therapist
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.therapistId != null">
+				 therapist_id,
+			</if>
+			<if test="bean.rehabType != null">
+				 rehab_type,
+			</if>
+			<if test="bean.specialization != null">
+				 specialization,
+			</if>
+			<if test="bean.qualification != null">
+				 qualification,
+			</if>
+			<if test="bean.experienceYears != null">
+				 experience_years,
+			</if>
+			<if test="bean.introduction != null">
+				 introduction,
+			</if>
+			<if test="bean.phone != null">
+				 phone,
+			</if>
+			<if test="bean.email != null">
+				 email,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.therapistId!=null">
+				 #{bean.therapistId},
+			</if>
+			<if test="bean.rehabType!=null">
+				 #{bean.rehabType},
+			</if>
+			<if test="bean.specialization!=null">
+				 #{bean.specialization},
+			</if>
+			<if test="bean.qualification!=null">
+				 #{bean.qualification},
+			</if>
+			<if test="bean.experienceYears!=null">
+				 #{bean.experienceYears},
+			</if>
+			<if test="bean.introduction!=null">
+				 #{bean.introduction},
+			</if>
+			<if test="bean.phone!=null">
+				 #{bean.phone},
+			</if>
+			<if test="bean.email!=null">
+				 #{bean.email},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.updateTime!=null">
+				 #{bean.updateTime},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.therapistId!=null">
+				 therapist_id = VALUES(therapist_id),
+			</if>
+			<if test="bean.rehabType!=null">
+				 rehab_type = VALUES(rehab_type),
+			</if>
+			<if test="bean.specialization!=null">
+				 specialization = VALUES(specialization),
+			</if>
+			<if test="bean.qualification!=null">
+				 qualification = VALUES(qualification),
+			</if>
+			<if test="bean.experienceYears!=null">
+				 experience_years = VALUES(experience_years),
+			</if>
+			<if test="bean.introduction!=null">
+				 introduction = VALUES(introduction),
+			</if>
+			<if test="bean.phone!=null">
+				 phone = VALUES(phone),
+			</if>
+			<if test="bean.email!=null">
+				 email = VALUES(email),
+			</if>
+			<if test="bean.status!=null">
+				 status = VALUES(status),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+			<if test="bean.updateTime!=null">
+				 update_time = VALUES(update_time),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationTherapist">
+		 INSERT INTO rehabilitation_therapist(
+			 therapist_id,
+			 rehab_type,
+			 specialization,
+			 qualification,
+			 experience_years,
+			 introduction,
+			 phone,
+			 email,
+			 status,
+			 create_time,
+			 update_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.therapistId},
+				 #{item.rehabType},
+				 #{item.specialization},
+				 #{item.qualification},
+				 #{item.experienceYears},
+				 #{item.introduction},
+				 #{item.phone},
+				 #{item.email},
+				 #{item.status},
+				 #{item.createTime},
+				 #{item.updateTime}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationTherapist">
+		 INSERT INTO rehabilitation_therapist(
+			 therapist_id,
+			 rehab_type,
+			 specialization,
+			 qualification,
+			 experience_years,
+			 introduction,
+			 phone,
+			 email,
+			 status,
+			 create_time,
+			 update_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.therapistId},
+				 #{item.rehabType},
+				 #{item.specialization},
+				 #{item.qualification},
+				 #{item.experienceYears},
+				 #{item.introduction},
+				 #{item.phone},
+				 #{item.email},
+				 #{item.status},
+				 #{item.createTime},
+				 #{item.updateTime}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			therapist_id = VALUES(therapist_id),
+			rehab_type = VALUES(rehab_type),
+			specialization = VALUES(specialization),
+			qualification = VALUES(qualification),
+			experience_years = VALUES(experience_years),
+			introduction = VALUES(introduction),
+			phone = VALUES(phone),
+			email = VALUES(email),
+			status = VALUES(status),
+			create_time = VALUES(create_time),
+			update_time = VALUES(update_time)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.lin.hr.manage.entity.query.RehabilitationTherapistQuery">
+		 UPDATE rehabilitation_therapist r
+ 		 <set> 
+			<if test="bean.therapistId != null">
+				 therapist_id = #{bean.therapistId},
+			</if>
+			<if test="bean.rehabType != null">
+				 rehab_type = #{bean.rehabType},
+			</if>
+			<if test="bean.specialization != null">
+				 specialization = #{bean.specialization},
+			</if>
+			<if test="bean.qualification != null">
+				 qualification = #{bean.qualification},
+			</if>
+			<if test="bean.experienceYears != null">
+				 experience_years = #{bean.experienceYears},
+			</if>
+			<if test="bean.introduction != null">
+				 introduction = #{bean.introduction},
+			</if>
+			<if test="bean.phone != null">
+				 phone = #{bean.phone},
+			</if>
+			<if test="bean.email != null">
+				 email = #{bean.email},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time = #{bean.updateTime},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete r from rehabilitation_therapist r
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据TherapistId修改-->
+	<update id="updateByTherapistId" parameterType="com.lin.hr.manage.entity.po.RehabilitationTherapist">
+		 UPDATE rehabilitation_therapist
+ 		 <set> 
+			<if test="bean.rehabType != null">
+				 rehab_type = #{bean.rehabType},
+			</if>
+			<if test="bean.specialization != null">
+				 specialization = #{bean.specialization},
+			</if>
+			<if test="bean.qualification != null">
+				 qualification = #{bean.qualification},
+			</if>
+			<if test="bean.experienceYears != null">
+				 experience_years = #{bean.experienceYears},
+			</if>
+			<if test="bean.introduction != null">
+				 introduction = #{bean.introduction},
+			</if>
+			<if test="bean.phone != null">
+				 phone = #{bean.phone},
+			</if>
+			<if test="bean.email != null">
+				 email = #{bean.email},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time = #{bean.updateTime},
+			</if>
+ 		 </set>
+ 		 where therapist_id=#{therapistId}
+	</update>
+
+	<!-- 根据TherapistId删除-->
+	<delete id="deleteByTherapistId">
+		delete from rehabilitation_therapist where therapist_id=#{therapistId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByTherapistId" resultMap="base_result_map">
+		select
+		<include refid="base_column_list"/>
+		from rehabilitation_therapist r
+		left join rehabilitation_type t
+		on r.rehab_type = t.type_id
+		where therapist_id=#{therapistId}
+	</select>
+
+</mapper>

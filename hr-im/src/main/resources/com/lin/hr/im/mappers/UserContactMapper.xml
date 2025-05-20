@@ -103,7 +103,7 @@
         <if test="query.queryGroupInfo">
             INNER JOIN group_info g ON u.contact_id = g.group_id
             <if test="query.excludeMyGroup">
-                AND g.group_owner_id != u.user_id
+                AND g.group_owner_id = u.user_id
             </if>
         </if>
         <include refid="query_condition"/>

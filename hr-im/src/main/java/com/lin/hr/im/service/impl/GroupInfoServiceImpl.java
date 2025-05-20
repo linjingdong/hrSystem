@@ -306,7 +306,12 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         userContactQuery.setOrderBy("create_time asc");
         userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
         List<UserContact> userContactList = userContactService.findListByParam(userContactQuery);
-
+        groupInfoCommon.setMemberCount(userContactList.size());
+        for (UserContact userContact : userContactList) {
+            if (groupInfoCommon.getGroupOwnerId().equals(userContact.getUserId())) {
+                groupInfoCommon.setGroupOwnerNickName(userContact.getContactName());
+            }
+        }
         GroupInfoVo groupInfoVo = new GroupInfoVo();
         groupInfoVo.setGroupInfo(groupInfoCommon);
         groupInfoVo.setUserContactList(userContactList);
@@ -424,6 +429,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         chatMessage.setMessageType(messageTypeEnum.getType());
         chatMessage.setContactId(groupId);
         chatMessage.setMessageContent(messageContent);
+        chatMessage.setSendUserId(null);
         chatMessageMapper.insert(chatMessage);
 
         UserContactQuery userContactQuery = new UserContactQuery();

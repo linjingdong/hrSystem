@@ -23,6 +23,12 @@
             <artifactId>hr-im</artifactId>
             <version>1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.lin.manage</groupId>
+            <artifactId>hr-manage</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
     <properties>

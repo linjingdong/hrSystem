@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.manage.mappers.RehabilitationTemplateItemMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.RehabilitationTemplateItem">
+		<!--主键ID-->
+		<result column="id" property="id"  />
+		<!--所属康复模板ID-->
+		<result column="template_id" property="templateId"  />
+		<!--第几天（从1开始）-->
+		<result column="day_index" property="dayIndex"  />
+		<!--当天训练内容-->
+		<result column="exercise_content" property="exerciseContent"  />
+		<!--参考图片链接-->
+		<result column="image_url" property="imageUrl"  />
+		<!--参考视频链接-->
+		<result column="video_url" property="videoUrl"  />
+		<!--建议时长-->
+		<result column="duration_minutes" property="durationMinutes"  />
+		<!--建议频次-->
+		<result column="frequency" property="frequency"  />
+		<!---->
+		<result column="create_time" property="createTime"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 r.id,r.template_id,r.day_index,r.exercise_content,r.image_url,
+		 r.video_url,r.duration_minutes,r.frequency,r.create_time
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.id != null and query.id!=''">
+				 and  r.id = #{query.id}
+			</if>
+			<if test="query.templateId != null and query.templateId!=''">
+				 and  r.template_id = #{query.templateId}
+			</if>
+			<if test="query.dayIndex != null">
+				 and  r.day_index = #{query.dayIndex}
+			</if>
+			<if test="query.exerciseContent != null and query.exerciseContent!=''">
+				 and  r.exercise_content = #{query.exerciseContent}
+			</if>
+			<if test="query.imageUrl != null and query.imageUrl!=''">
+				 and  r.image_url = #{query.imageUrl}
+			</if>
+			<if test="query.videoUrl != null and query.videoUrl!=''">
+				 and  r.video_url = #{query.videoUrl}
+			</if>
+			<if test="query.durationMinutes != null">
+				 and  r.duration_minutes = #{query.durationMinutes}
+			</if>
+			<if test="query.frequency != null">
+				 and  r.frequency = #{query.frequency}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  r.create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.idFuzzy!= null  and query.idFuzzy!=''">
+				 and  r.id like concat('%', #{query.idFuzzy}, '%')
+			</if>
+			<if test="query.templateIdFuzzy!= null  and query.templateIdFuzzy!=''">
+				 and  r.template_id like concat('%', #{query.templateIdFuzzy}, '%')
+			</if>
+			<if test="query.exerciseContentFuzzy!= null  and query.exerciseContentFuzzy!=''">
+				 and  r.exercise_content like concat('%', #{query.exerciseContentFuzzy}, '%')
+			</if>
+			<if test="query.imageUrlFuzzy!= null  and query.imageUrlFuzzy!=''">
+				 and  r.image_url like concat('%', #{query.imageUrlFuzzy}, '%')
+			</if>
+			<if test="query.videoUrlFuzzy!= null  and query.videoUrlFuzzy!=''">
+				 and  r.video_url like concat('%', #{query.videoUrlFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  r.create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  r.create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM rehabilitation_template_item r <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM rehabilitation_template_item r <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplateItem">
+		 INSERT INTO rehabilitation_template_item
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.id != null">
+				 id,
+			</if>
+			<if test="bean.templateId != null">
+				 template_id,
+			</if>
+			<if test="bean.dayIndex != null">
+				 day_index,
+			</if>
+			<if test="bean.exerciseContent != null">
+				 exercise_content,
+			</if>
+			<if test="bean.imageUrl != null">
+				 image_url,
+			</if>
+			<if test="bean.videoUrl != null">
+				 video_url,
+			</if>
+			<if test="bean.durationMinutes != null">
+				 duration_minutes,
+			</if>
+			<if test="bean.frequency != null">
+				 frequency,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.id!=null">
+				 #{bean.id},
+			</if>
+			<if test="bean.templateId!=null">
+				 #{bean.templateId},
+			</if>
+			<if test="bean.dayIndex!=null">
+				 #{bean.dayIndex},
+			</if>
+			<if test="bean.exerciseContent!=null">
+				 #{bean.exerciseContent},
+			</if>
+			<if test="bean.imageUrl!=null">
+				 #{bean.imageUrl},
+			</if>
+			<if test="bean.videoUrl!=null">
+				 #{bean.videoUrl},
+			</if>
+			<if test="bean.durationMinutes!=null">
+				 #{bean.durationMinutes},
+			</if>
+			<if test="bean.frequency!=null">
+				 #{bean.frequency},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplateItem">
+		 INSERT INTO rehabilitation_template_item
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.id != null">
+				 id,
+			</if>
+			<if test="bean.templateId != null">
+				 template_id,
+			</if>
+			<if test="bean.dayIndex != null">
+				 day_index,
+			</if>
+			<if test="bean.exerciseContent != null">
+				 exercise_content,
+			</if>
+			<if test="bean.imageUrl != null">
+				 image_url,
+			</if>
+			<if test="bean.videoUrl != null">
+				 video_url,
+			</if>
+			<if test="bean.durationMinutes != null">
+				 duration_minutes,
+			</if>
+			<if test="bean.frequency != null">
+				 frequency,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.id!=null">
+				 #{bean.id},
+			</if>
+			<if test="bean.templateId!=null">
+				 #{bean.templateId},
+			</if>
+			<if test="bean.dayIndex!=null">
+				 #{bean.dayIndex},
+			</if>
+			<if test="bean.exerciseContent!=null">
+				 #{bean.exerciseContent},
+			</if>
+			<if test="bean.imageUrl!=null">
+				 #{bean.imageUrl},
+			</if>
+			<if test="bean.videoUrl!=null">
+				 #{bean.videoUrl},
+			</if>
+			<if test="bean.durationMinutes!=null">
+				 #{bean.durationMinutes},
+			</if>
+			<if test="bean.frequency!=null">
+				 #{bean.frequency},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.id!=null">
+				 id = VALUES(id),
+			</if>
+			<if test="bean.templateId!=null">
+				 template_id = VALUES(template_id),
+			</if>
+			<if test="bean.dayIndex!=null">
+				 day_index = VALUES(day_index),
+			</if>
+			<if test="bean.exerciseContent!=null">
+				 exercise_content = VALUES(exercise_content),
+			</if>
+			<if test="bean.imageUrl!=null">
+				 image_url = VALUES(image_url),
+			</if>
+			<if test="bean.videoUrl!=null">
+				 video_url = VALUES(video_url),
+			</if>
+			<if test="bean.durationMinutes!=null">
+				 duration_minutes = VALUES(duration_minutes),
+			</if>
+			<if test="bean.frequency!=null">
+				 frequency = VALUES(frequency),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplateItem">
+		 INSERT INTO rehabilitation_template_item(
+			 id,
+			 template_id,
+			 day_index,
+			 exercise_content,
+			 image_url,
+			 video_url,
+			 duration_minutes,
+			 frequency,
+			 create_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.id},
+				 #{item.templateId},
+				 #{item.dayIndex},
+				 #{item.exerciseContent},
+				 #{item.imageUrl},
+				 #{item.videoUrl},
+				 #{item.durationMinutes},
+				 #{item.frequency},
+				 #{item.createTime}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplateItem">
+		 INSERT INTO rehabilitation_template_item(
+			 id,
+			 template_id,
+			 day_index,
+			 exercise_content,
+			 image_url,
+			 video_url,
+			 duration_minutes,
+			 frequency,
+			 create_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.id},
+				 #{item.templateId},
+				 #{item.dayIndex},
+				 #{item.exerciseContent},
+				 #{item.imageUrl},
+				 #{item.videoUrl},
+				 #{item.durationMinutes},
+				 #{item.frequency},
+				 #{item.createTime}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			id = VALUES(id),
+			template_id = VALUES(template_id),
+			day_index = VALUES(day_index),
+			exercise_content = VALUES(exercise_content),
+			image_url = VALUES(image_url),
+			video_url = VALUES(video_url),
+			duration_minutes = VALUES(duration_minutes),
+			frequency = VALUES(frequency),
+			create_time = VALUES(create_time)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.lin.hr.manage.entity.query.RehabilitationTemplateItemQuery">
+		 UPDATE rehabilitation_template_item r
+ 		 <set> 
+			<if test="bean.id != null">
+				 id = #{bean.id},
+			</if>
+			<if test="bean.templateId != null">
+				 template_id = #{bean.templateId},
+			</if>
+			<if test="bean.dayIndex != null">
+				 day_index = #{bean.dayIndex},
+			</if>
+			<if test="bean.exerciseContent != null">
+				 exercise_content = #{bean.exerciseContent},
+			</if>
+			<if test="bean.imageUrl != null">
+				 image_url = #{bean.imageUrl},
+			</if>
+			<if test="bean.videoUrl != null">
+				 video_url = #{bean.videoUrl},
+			</if>
+			<if test="bean.durationMinutes != null">
+				 duration_minutes = #{bean.durationMinutes},
+			</if>
+			<if test="bean.frequency != null">
+				 frequency = #{bean.frequency},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete r from rehabilitation_template_item r
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据Id修改-->
+	<update id="updateById" parameterType="com.lin.hr.manage.entity.po.RehabilitationTemplateItem">
+		 UPDATE rehabilitation_template_item
+ 		 <set> 
+			<if test="bean.templateId != null">
+				 template_id = #{bean.templateId},
+			</if>
+			<if test="bean.dayIndex != null">
+				 day_index = #{bean.dayIndex},
+			</if>
+			<if test="bean.exerciseContent != null">
+				 exercise_content = #{bean.exerciseContent},
+			</if>
+			<if test="bean.imageUrl != null">
+				 image_url = #{bean.imageUrl},
+			</if>
+			<if test="bean.videoUrl != null">
+				 video_url = #{bean.videoUrl},
+			</if>
+			<if test="bean.durationMinutes != null">
+				 duration_minutes = #{bean.durationMinutes},
+			</if>
+			<if test="bean.frequency != null">
+				 frequency = #{bean.frequency},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+ 		 </set>
+ 		 where id=#{id}
+	</update>
+
+	<!-- 根据Id删除-->
+	<delete id="deleteById">
+		delete from rehabilitation_template_item where id=#{id}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectById" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from rehabilitation_template_item r where id=#{id}
+	</select>
+
+</mapper>

@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.manage.mappers.RehabilitationTaskRecordMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.RehabilitationTaskRecord">
+		<!--记录ID-->
+		<result column="record_id" property="recordId"  />
+		<!--所属计划ID-->
+		<result column="plan_id" property="planId"  />
+		<!--患者ID-->
+		<result column="user_id" property="userId"  />
+		<!--训练日期-->
+		<result column="training_date" property="trainingDate"  />
+		<!--是否完成-->
+		<result column="completed" property="completed"  />
+		<!--疼痛等级（0无~3重）-->
+		<result column="pain_level" property="painLevel"  />
+		<!--患者备注-->
+		<result column="comment" property="comment"  />
+		<!--记录时间-->
+		<result column="create_time" property="createTime"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 r.record_id,r.plan_id,r.user_id,r.training_date,r.completed,
+		 r.pain_level,r.comment,r.create_time
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.recordId != null and query.recordId!=''">
+				 and  r.record_id = #{query.recordId}
+			</if>
+			<if test="query.planId != null and query.planId!=''">
+				 and  r.plan_id = #{query.planId}
+			</if>
+			<if test="query.userId != null and query.userId!=''">
+				 and  r.user_id = #{query.userId}
+			</if>
+			<if test="query.trainingDate != null and query.trainingDate!=''">
+				 <![CDATA[ and  r.training_date=str_to_date(#{query.trainingDate}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.completed != null">
+				 and  r.completed = #{query.completed}
+			</if>
+			<if test="query.painLevel != null">
+				 and  r.pain_level = #{query.painLevel}
+			</if>
+			<if test="query.comment != null and query.comment!=''">
+				 and  r.comment = #{query.comment}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  r.create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.recordIdFuzzy!= null  and query.recordIdFuzzy!=''">
+				 and  r.record_id like concat('%', #{query.recordIdFuzzy}, '%')
+			</if>
+			<if test="query.planIdFuzzy!= null  and query.planIdFuzzy!=''">
+				 and  r.plan_id like concat('%', #{query.planIdFuzzy}, '%')
+			</if>
+			<if test="query.userIdFuzzy!= null  and query.userIdFuzzy!=''">
+				 and  r.user_id like concat('%', #{query.userIdFuzzy}, '%')
+			</if>
+			<if test="query.trainingDateStart!= null and query.trainingDateStart!=''">
+				 <![CDATA[ and  r.training_date>=str_to_date(#{query.trainingDateStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.trainingDateEnd!= null and query.trainingDateEnd!=''">
+				 <![CDATA[ and  r.training_date< date_sub(str_to_date(#{query.trainingDateEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.commentFuzzy!= null  and query.commentFuzzy!=''">
+				 and  r.comment like concat('%', #{query.commentFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  r.create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  r.create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM rehabilitation_task_record r <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM rehabilitation_task_record r <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.lin.hr.manage.entity.po.RehabilitationTaskRecord">
+		 INSERT INTO rehabilitation_task_record
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.recordId != null">
+				 record_id,
+			</if>
+			<if test="bean.planId != null">
+				 plan_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.trainingDate != null">
+				 training_date,
+			</if>
+			<if test="bean.completed != null">
+				 completed,
+			</if>
+			<if test="bean.painLevel != null">
+				 pain_level,
+			</if>
+			<if test="bean.comment != null">
+				 comment,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.recordId!=null">
+				 #{bean.recordId},
+			</if>
+			<if test="bean.planId!=null">
+				 #{bean.planId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.trainingDate!=null">
+				 #{bean.trainingDate},
+			</if>
+			<if test="bean.completed!=null">
+				 #{bean.completed},
+			</if>
+			<if test="bean.painLevel!=null">
+				 #{bean.painLevel},
+			</if>
+			<if test="bean.comment!=null">
+				 #{bean.comment},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.lin.hr.manage.entity.po.RehabilitationTaskRecord">
+		 INSERT INTO rehabilitation_task_record
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.recordId != null">
+				 record_id,
+			</if>
+			<if test="bean.planId != null">
+				 plan_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.trainingDate != null">
+				 training_date,
+			</if>
+			<if test="bean.completed != null">
+				 completed,
+			</if>
+			<if test="bean.painLevel != null">
+				 pain_level,
+			</if>
+			<if test="bean.comment != null">
+				 comment,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.recordId!=null">
+				 #{bean.recordId},
+			</if>
+			<if test="bean.planId!=null">
+				 #{bean.planId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.trainingDate!=null">
+				 #{bean.trainingDate},
+			</if>
+			<if test="bean.completed!=null">
+				 #{bean.completed},
+			</if>
+			<if test="bean.painLevel!=null">
+				 #{bean.painLevel},
+			</if>
+			<if test="bean.comment!=null">
+				 #{bean.comment},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.recordId!=null">
+				 record_id = VALUES(record_id),
+			</if>
+			<if test="bean.planId!=null">
+				 plan_id = VALUES(plan_id),
+			</if>
+			<if test="bean.userId!=null">
+				 user_id = VALUES(user_id),
+			</if>
+			<if test="bean.trainingDate!=null">
+				 training_date = VALUES(training_date),
+			</if>
+			<if test="bean.completed!=null">
+				 completed = VALUES(completed),
+			</if>
+			<if test="bean.painLevel!=null">
+				 pain_level = VALUES(pain_level),
+			</if>
+			<if test="bean.comment!=null">
+				 comment = VALUES(comment),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationTaskRecord">
+		 INSERT INTO rehabilitation_task_record(
+			 record_id,
+			 plan_id,
+			 user_id,
+			 training_date,
+			 completed,
+			 pain_level,
+			 comment,
+			 create_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.recordId},
+				 #{item.planId},
+				 #{item.userId},
+				 #{item.trainingDate},
+				 #{item.completed},
+				 #{item.painLevel},
+				 #{item.comment},
+				 #{item.createTime}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationTaskRecord">
+		 INSERT INTO rehabilitation_task_record(
+			 record_id,
+			 plan_id,
+			 user_id,
+			 training_date,
+			 completed,
+			 pain_level,
+			 comment,
+			 create_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.recordId},
+				 #{item.planId},
+				 #{item.userId},
+				 #{item.trainingDate},
+				 #{item.completed},
+				 #{item.painLevel},
+				 #{item.comment},
+				 #{item.createTime}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			record_id = VALUES(record_id),
+			plan_id = VALUES(plan_id),
+			user_id = VALUES(user_id),
+			training_date = VALUES(training_date),
+			completed = VALUES(completed),
+			pain_level = VALUES(pain_level),
+			comment = VALUES(comment),
+			create_time = VALUES(create_time)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.lin.hr.manage.entity.query.RehabilitationTaskRecordQuery">
+		 UPDATE rehabilitation_task_record r
+ 		 <set> 
+			<if test="bean.recordId != null">
+				 record_id = #{bean.recordId},
+			</if>
+			<if test="bean.planId != null">
+				 plan_id = #{bean.planId},
+			</if>
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.trainingDate != null">
+				 training_date = #{bean.trainingDate},
+			</if>
+			<if test="bean.completed != null">
+				 completed = #{bean.completed},
+			</if>
+			<if test="bean.painLevel != null">
+				 pain_level = #{bean.painLevel},
+			</if>
+			<if test="bean.comment != null">
+				 comment = #{bean.comment},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete r from rehabilitation_task_record r
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据RecordId修改-->
+	<update id="updateByRecordId" parameterType="com.lin.hr.manage.entity.po.RehabilitationTaskRecord">
+		 UPDATE rehabilitation_task_record
+ 		 <set> 
+			<if test="bean.planId != null">
+				 plan_id = #{bean.planId},
+			</if>
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.trainingDate != null">
+				 training_date = #{bean.trainingDate},
+			</if>
+			<if test="bean.completed != null">
+				 completed = #{bean.completed},
+			</if>
+			<if test="bean.painLevel != null">
+				 pain_level = #{bean.painLevel},
+			</if>
+			<if test="bean.comment != null">
+				 comment = #{bean.comment},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+ 		 </set>
+ 		 where record_id=#{recordId}
+	</update>
+
+	<!-- 根据RecordId删除-->
+	<delete id="deleteByRecordId">
+		delete from rehabilitation_task_record where record_id=#{recordId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByRecordId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from rehabilitation_task_record r where record_id=#{recordId}
+	</select>
+
+	<!-- 根据PlanIdAndTrainingDate修改-->
+	<update id="updateByPlanIdAndTrainingDate" parameterType="com.lin.hr.manage.entity.po.RehabilitationTaskRecord">
+		 UPDATE rehabilitation_task_record
+ 		 <set> 
+			<if test="bean.recordId != null">
+				 record_id = #{bean.recordId},
+			</if>
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.completed != null">
+				 completed = #{bean.completed},
+			</if>
+			<if test="bean.painLevel != null">
+				 pain_level = #{bean.painLevel},
+			</if>
+			<if test="bean.comment != null">
+				 comment = #{bean.comment},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+ 		 </set>
+ 		 where plan_id=#{planId} and training_date=#{trainingDate}
+	</update>
+
+	<!-- 根据PlanIdAndTrainingDate删除-->
+	<delete id="deleteByPlanIdAndTrainingDate">
+		delete from rehabilitation_task_record where plan_id=#{planId} and training_date=#{trainingDate}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByPlanIdAndTrainingDate" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from rehabilitation_task_record r where plan_id=#{planId} and training_date=#{trainingDate}
+	</select>
+
+</mapper>

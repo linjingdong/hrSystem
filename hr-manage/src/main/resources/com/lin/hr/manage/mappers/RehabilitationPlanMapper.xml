@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.manage.mappers.RehabilitationPlanMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.RehabilitationPlan">
+		<!--计划ID-->
+		<result column="plan_id" property="planId"  />
+		<!--患者ID-->
+		<result column="user_id" property="userId"  />
+		<!--康复师ID-->
+		<result column="doctor_id" property="doctorId"  />
+		<!--来源模板ID-->
+		<result column="template_id" property="templateId"  />
+		<!--计划开始日期-->
+		<result column="start_date" property="startDate"  />
+		<!--计划结束日期-->
+		<result column="end_date" property="endDate"  />
+		<!--个性化备注-->
+		<result column="custom_note" property="customNote"  />
+		<!--状态（0未开始 1进行中 2已完成 3中止）-->
+		<result column="status" property="status"  />
+		<!--创建时间-->
+		<result column="create_time" property="createTime"  />
+		<!--模板快照（JSON格式）-->
+		<result column="template_snapshot_json" property="templateSnapshotJson"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 r.plan_id,r.user_id,r.doctor_id,r.template_id,r.start_date,
+		 r.end_date,r.custom_note,r.status,r.create_time,r.template_snapshot_json
+		 
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.planId != null and query.planId!=''">
+				 and  r.plan_id = #{query.planId}
+			</if>
+			<if test="query.userId != null and query.userId!=''">
+				 and  r.user_id = #{query.userId}
+			</if>
+			<if test="query.doctorId != null and query.doctorId!=''">
+				 and  r.doctor_id = #{query.doctorId}
+			</if>
+			<if test="query.templateId != null and query.templateId!=''">
+				 and  r.template_id = #{query.templateId}
+			</if>
+			<if test="query.startDate != null and query.startDate!=''">
+				 <![CDATA[ and  r.start_date=str_to_date(#{query.startDate}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.endDate != null and query.endDate!=''">
+				 <![CDATA[ and  r.end_date=str_to_date(#{query.endDate}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.customNote != null and query.customNote!=''">
+				 and  r.custom_note = #{query.customNote}
+			</if>
+			<if test="query.status != null">
+				 and  r.status = #{query.status}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  r.create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.templateSnapshotJson != null and query.templateSnapshotJson!=''">
+				 and  r.template_snapshot_json = #{query.templateSnapshotJson}
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.planIdFuzzy!= null  and query.planIdFuzzy!=''">
+				 and  r.plan_id like concat('%', #{query.planIdFuzzy}, '%')
+			</if>
+			<if test="query.userIdFuzzy!= null  and query.userIdFuzzy!=''">
+				 and  r.user_id like concat('%', #{query.userIdFuzzy}, '%')
+			</if>
+			<if test="query.doctorIdFuzzy!= null  and query.doctorIdFuzzy!=''">
+				 and  r.doctor_id like concat('%', #{query.doctorIdFuzzy}, '%')
+			</if>
+			<if test="query.templateIdFuzzy!= null  and query.templateIdFuzzy!=''">
+				 and  r.template_id like concat('%', #{query.templateIdFuzzy}, '%')
+			</if>
+			<if test="query.startDateStart!= null and query.startDateStart!=''">
+				 <![CDATA[ and  r.start_date>=str_to_date(#{query.startDateStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.startDateEnd!= null and query.startDateEnd!=''">
+				 <![CDATA[ and  r.start_date< date_sub(str_to_date(#{query.startDateEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.endDateStart!= null and query.endDateStart!=''">
+				 <![CDATA[ and  r.end_date>=str_to_date(#{query.endDateStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.endDateEnd!= null and query.endDateEnd!=''">
+				 <![CDATA[ and  r.end_date< date_sub(str_to_date(#{query.endDateEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.customNoteFuzzy!= null  and query.customNoteFuzzy!=''">
+				 and  r.custom_note like concat('%', #{query.customNoteFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  r.create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  r.create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.templateSnapshotJsonFuzzy!= null  and query.templateSnapshotJsonFuzzy!=''">
+				 and  r.template_snapshot_json like concat('%', #{query.templateSnapshotJsonFuzzy}, '%')
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM rehabilitation_plan r <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM rehabilitation_plan r <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.lin.hr.manage.entity.po.RehabilitationPlan">
+		 INSERT INTO rehabilitation_plan
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.planId != null">
+				 plan_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.doctorId != null">
+				 doctor_id,
+			</if>
+			<if test="bean.templateId != null">
+				 template_id,
+			</if>
+			<if test="bean.startDate != null">
+				 start_date,
+			</if>
+			<if test="bean.endDate != null">
+				 end_date,
+			</if>
+			<if test="bean.customNote != null">
+				 custom_note,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.templateSnapshotJson != null">
+				 template_snapshot_json,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.planId!=null">
+				 #{bean.planId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.doctorId!=null">
+				 #{bean.doctorId},
+			</if>
+			<if test="bean.templateId!=null">
+				 #{bean.templateId},
+			</if>
+			<if test="bean.startDate!=null">
+				 #{bean.startDate},
+			</if>
+			<if test="bean.endDate!=null">
+				 #{bean.endDate},
+			</if>
+			<if test="bean.customNote!=null">
+				 #{bean.customNote},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.templateSnapshotJson!=null">
+				 #{bean.templateSnapshotJson},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.lin.hr.manage.entity.po.RehabilitationPlan">
+		 INSERT INTO rehabilitation_plan
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.planId != null">
+				 plan_id,
+			</if>
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.doctorId != null">
+				 doctor_id,
+			</if>
+			<if test="bean.templateId != null">
+				 template_id,
+			</if>
+			<if test="bean.startDate != null">
+				 start_date,
+			</if>
+			<if test="bean.endDate != null">
+				 end_date,
+			</if>
+			<if test="bean.customNote != null">
+				 custom_note,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.templateSnapshotJson != null">
+				 template_snapshot_json,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.planId!=null">
+				 #{bean.planId},
+			</if>
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.doctorId!=null">
+				 #{bean.doctorId},
+			</if>
+			<if test="bean.templateId!=null">
+				 #{bean.templateId},
+			</if>
+			<if test="bean.startDate!=null">
+				 #{bean.startDate},
+			</if>
+			<if test="bean.endDate!=null">
+				 #{bean.endDate},
+			</if>
+			<if test="bean.customNote!=null">
+				 #{bean.customNote},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.templateSnapshotJson!=null">
+				 #{bean.templateSnapshotJson},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.planId!=null">
+				 plan_id = VALUES(plan_id),
+			</if>
+			<if test="bean.userId!=null">
+				 user_id = VALUES(user_id),
+			</if>
+			<if test="bean.doctorId!=null">
+				 doctor_id = VALUES(doctor_id),
+			</if>
+			<if test="bean.templateId!=null">
+				 template_id = VALUES(template_id),
+			</if>
+			<if test="bean.startDate!=null">
+				 start_date = VALUES(start_date),
+			</if>
+			<if test="bean.endDate!=null">
+				 end_date = VALUES(end_date),
+			</if>
+			<if test="bean.customNote!=null">
+				 custom_note = VALUES(custom_note),
+			</if>
+			<if test="bean.status!=null">
+				 status = VALUES(status),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+			<if test="bean.templateSnapshotJson!=null">
+				 template_snapshot_json = VALUES(template_snapshot_json),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationPlan">
+		 INSERT INTO rehabilitation_plan(
+			 plan_id,
+			 user_id,
+			 doctor_id,
+			 template_id,
+			 start_date,
+			 end_date,
+			 custom_note,
+			 status,
+			 create_time,
+			 template_snapshot_json
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.planId},
+				 #{item.userId},
+				 #{item.doctorId},
+				 #{item.templateId},
+				 #{item.startDate},
+				 #{item.endDate},
+				 #{item.customNote},
+				 #{item.status},
+				 #{item.createTime},
+				 #{item.templateSnapshotJson}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationPlan">
+		 INSERT INTO rehabilitation_plan(
+			 plan_id,
+			 user_id,
+			 doctor_id,
+			 template_id,
+			 start_date,
+			 end_date,
+			 custom_note,
+			 status,
+			 create_time,
+			 template_snapshot_json
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.planId},
+				 #{item.userId},
+				 #{item.doctorId},
+				 #{item.templateId},
+				 #{item.startDate},
+				 #{item.endDate},
+				 #{item.customNote},
+				 #{item.status},
+				 #{item.createTime},
+				 #{item.templateSnapshotJson}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			plan_id = VALUES(plan_id),
+			user_id = VALUES(user_id),
+			doctor_id = VALUES(doctor_id),
+			template_id = VALUES(template_id),
+			start_date = VALUES(start_date),
+			end_date = VALUES(end_date),
+			custom_note = VALUES(custom_note),
+			status = VALUES(status),
+			create_time = VALUES(create_time),
+			template_snapshot_json = VALUES(template_snapshot_json)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.lin.hr.manage.entity.query.RehabilitationPlanQuery">
+		 UPDATE rehabilitation_plan r
+ 		 <set> 
+			<if test="bean.planId != null">
+				 plan_id = #{bean.planId},
+			</if>
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.doctorId != null">
+				 doctor_id = #{bean.doctorId},
+			</if>
+			<if test="bean.templateId != null">
+				 template_id = #{bean.templateId},
+			</if>
+			<if test="bean.startDate != null">
+				 start_date = #{bean.startDate},
+			</if>
+			<if test="bean.endDate != null">
+				 end_date = #{bean.endDate},
+			</if>
+			<if test="bean.customNote != null">
+				 custom_note = #{bean.customNote},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.templateSnapshotJson != null">
+				 template_snapshot_json = #{bean.templateSnapshotJson},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete r from rehabilitation_plan r
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据PlanId修改-->
+	<update id="updateByPlanId" parameterType="com.lin.hr.manage.entity.po.RehabilitationPlan">
+		 UPDATE rehabilitation_plan
+ 		 <set> 
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.doctorId != null">
+				 doctor_id = #{bean.doctorId},
+			</if>
+			<if test="bean.templateId != null">
+				 template_id = #{bean.templateId},
+			</if>
+			<if test="bean.startDate != null">
+				 start_date = #{bean.startDate},
+			</if>
+			<if test="bean.endDate != null">
+				 end_date = #{bean.endDate},
+			</if>
+			<if test="bean.customNote != null">
+				 custom_note = #{bean.customNote},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.templateSnapshotJson != null">
+				 template_snapshot_json = #{bean.templateSnapshotJson},
+			</if>
+ 		 </set>
+ 		 where plan_id=#{planId}
+	</update>
+
+	<!-- 根据PlanId删除-->
+	<delete id="deleteByPlanId">
+		delete from rehabilitation_plan where plan_id=#{planId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByPlanId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from rehabilitation_plan r where plan_id=#{planId}
+	</select>
+
+</mapper>

@@ -15,5 +15,6 @@
         <module>hr-common</module>
         <module>hr-start</module>
         <module>hr-im</module>
+        <module>hr-manage</module>
     </modules>
 </project>

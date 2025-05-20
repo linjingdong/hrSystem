@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableAsync
 @EnableTransactionManagement
 @MapperScan(basePackages = {"com.lin.hr.*.mappers"})
-@SpringBootApplication(scanBasePackages = {"com.lin.hr.common", "com.lin.hr.im", "com.lin.hr.start"})
+@SpringBootApplication(scanBasePackages = {"com.lin.hr.common", "com.lin.hr.im", "com.lin.hr.start", "com.lin.hr.manage"})
 public class HrApplication {
     public static void main(String[] args) {
         SpringApplication.run(HrApplication.class, args);
