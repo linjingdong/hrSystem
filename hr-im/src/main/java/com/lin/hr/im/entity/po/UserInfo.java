@@ -113,10 +113,11 @@ public class UserInfo implements Serializable {
     }
 
     public Integer getOnLineType() {
-        if (lastLoginTime != null || lastLoginTime > lastOffTime) {
-            return Constant.ONE;
-        } else {
-            return Constant.ZERO;
+        if (lastLoginTime != null) {
+            if (lastOffTime == null || lastLoginTime > lastOffTime) {
+                return Constant.ONE;
+            }
         }
+        return Constant.ZERO;
     }
 }

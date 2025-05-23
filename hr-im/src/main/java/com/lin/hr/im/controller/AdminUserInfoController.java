@@ -31,7 +31,7 @@ public class AdminUserInfoController extends ABaseController {
      *  获取用户信息
      */
     @PostMapping("/loadUser")
-    @GlobalInterceptor(checkAdmin = true)
+    @GlobalInterceptor
     public ResponseVO<Object> loadUser(UserInfoQuery userInfoQuery) {
         userInfoQuery.setOrderBy("create_time desc");
         PaginationResultVO<UserInfo> userInfos = userInfoService.findListByPage(userInfoQuery);
@@ -42,7 +42,7 @@ public class AdminUserInfoController extends ABaseController {
      * 更新用户状态
      */
     @PostMapping("/updateUserStatus")
-    @GlobalInterceptor(checkAdmin = true)
+    @GlobalInterceptor
     public ResponseVO<Object> updateUserStatus(@NotBlank Integer status, @NotBlank String userId) {
         userInfoService.updateUserStatus(status, userId);
         return getSuccessResponseVO("更新用户状态成功");
@@ -52,7 +52,7 @@ public class AdminUserInfoController extends ABaseController {
      * 强制下线
      */
     @PostMapping("/forceOffLine")
-    @GlobalInterceptor(checkAdmin = true)
+    @GlobalInterceptor
     public ResponseVO<Object> forceOffLine(@NotBlank String userId) {
         userInfoService.forceOffLine(userId);
         return getSuccessResponseVO("用户强制下线");

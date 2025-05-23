@@ -69,4 +69,5 @@ public interface RehabilitationTherapistService {
 	 */
 	Integer deleteRehabilitationTherapistByTherapistId(String therapistId);
 
+    void addOrUpdateTherapist(RehabilitationTherapist bean);
 }

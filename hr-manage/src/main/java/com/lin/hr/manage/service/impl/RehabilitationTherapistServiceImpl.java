@@ -5,6 +5,8 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import com.lin.hr.manage.entity.query.SimplePage;
+import com.lin.hr.manage.entity.vo.RehabilitationTherapistVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.lin.hr.manage.entity.query.RehabilitationTherapistQuery;
@@ -126,5 +128,10 @@ public class RehabilitationTherapistServiceImpl implements RehabilitationTherapi
 	@Override
 	public Integer deleteRehabilitationTherapistByTherapistId(String therapistId) {
 		return this.rehabilitationTherapistMapper.deleteByTherapistId(therapistId);
+	}
+
+	@Override
+	public void addOrUpdateTherapist(RehabilitationTherapist bean) {
+		this.rehabilitationTherapistMapper.insertOrUpdate(bean);
 	}
 }

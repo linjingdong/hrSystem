@@ -2,9 +2,12 @@ package com.lin.hr.manage.service;
 
 import java.util.List;
 
+import com.lin.hr.common.dto.TokenUserInfoDto;
+import com.lin.hr.common.vo.PaginationResultVO;
+import com.lin.hr.manage.entity.dto.RehabilitationPlanDto;
 import com.lin.hr.manage.entity.query.RehabilitationPlanQuery;
 import com.lin.hr.manage.entity.po.RehabilitationPlan;
-import com.lin.hr.common.vo.PaginationResultVO;
+import com.lin.hr.manage.entity.vo.RehabilitationPlanVO;
 
 
 /**
@@ -25,7 +28,7 @@ public interface RehabilitationPlanService {
 	/**
 	 * 分页查询
 	 */
-	PaginationResultVO<RehabilitationPlan> findListByPage(RehabilitationPlanQuery param);
+	PaginationResultVO<RehabilitationPlanVO> findListByPage(RehabilitationPlanQuery param);
 
 	/**
 	 * 新增
@@ -69,4 +72,9 @@ public interface RehabilitationPlanService {
 	 */
 	Integer deleteRehabilitationPlanByPlanId(String planId);
 
+	void createPlan(RehabilitationPlanDto dto, TokenUserInfoDto tokenUserInfo);
+
+	void updatePlan(RehabilitationPlanDto dto);
+
+	RehabilitationPlanDto getByPlanId(String planId);
 }

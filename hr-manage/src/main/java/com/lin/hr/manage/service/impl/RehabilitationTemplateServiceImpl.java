@@ -2,6 +2,7 @@ package com.lin.hr.manage.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -202,7 +203,7 @@ public class RehabilitationTemplateServiceImpl implements RehabilitationTemplate
         templateItemQuery.setTemplateId(templateId);
         List<RehabilitationTemplateItem> itemList = templateItemMapper.selectList(templateItemQuery);
         vo.setRehabilitationTemplateItems(itemList);
-        return null;
+        return vo;
     }
 
     @Override
@@ -212,22 +213,44 @@ public class RehabilitationTemplateServiceImpl implements RehabilitationTemplate
         if (null == dbTemplate) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
+        
+        // 创建更新对象
         RehabilitationTemplate updateTemplate = new RehabilitationTemplate();
-        RehabilitationTemplateQuery templateQuery = new RehabilitationTemplateQuery();
-        updateTemplate.setSuitableFor(dto.getSuitableFor());
-        updateTemplate.setTotalDays(dto.getTotalDays());
-        templateQuery.setTemplateId(templateId);
-        this.updateByParam(updateTemplate, templateQuery);
-
-        List<RehabilitationTemplateItem> templateItemList = dto.getRehabilitationTemplateItemList();
-        for (RehabilitationTemplateItem templateItem : templateItemList) {
-            RehabilitationTemplateItem dbTemplateItem = templateItemMapper.selectById(templateItem.getId());
-            if (null == dbTemplateItem) {
-                throw new BusinessException(ResponseCodeEnum.CODE_600);
-            }
-            RehabilitationTemplateItemQuery templateItemQuery = new RehabilitationTemplateItemQuery();
-            templateItemQuery.setId(dbTemplateItem.getId());
-            templateItemService.updateByParam(templateItem, templateItemQuery);
+        updateTemplate.setTemplateId(templateId); // 设置ID
+        
+        // 设置要更新的字段
+        if (dto.getTemplateName() != null && !dto.getTemplateName().isEmpty()) {
+            updateTemplate.setTemplateName(dto.getTemplateName());
         }
+        if (dto.getTypeId() != null) {
+            updateTemplate.setTypeId(dto.getTypeId());
+        }
+        if (dto.getSuitableFor() != null) {
+            updateTemplate.setSuitableFor(dto.getSuitableFor());
+        }
+        if (dto.getTotalDays() != null) {
+            updateTemplate.setTotalDays(dto.getTotalDays());
+        }
+        
+        // 使用updateByTemplateId而不是updateByParam
+        this.rehabilitationTemplateMapper.updateByTemplateId(updateTemplate, templateId);
+        
+        // 更新训练明细项
+        List<RehabilitationTemplateItem> templateItemList = dto.getRehabilitationTemplateItemList();
+        if (templateItemList != null && !templateItemList.isEmpty()) {
+            for (RehabilitationTemplateItem templateItem : templateItemList) {
+                templateItemMapper.insertOrUpdate(templateItem);
+            }
+        }
+    }
+
+    @Override
+    public List<RehabilitationTemplateVo> getTemplateByTypeId(String typeId) {
+        RehabilitationTemplateQuery templateQuery = new RehabilitationTemplateQuery();
+        templateQuery.setTypeId(typeId);
+        List<RehabilitationTemplate> rehabilitationTemplates = rehabilitationTemplateMapper.selectList(templateQuery);
+        return rehabilitationTemplates.stream().map(template -> {
+            return this.getTemplateById(template.getTemplateId());
+        }).collect(Collectors.toList());
     }
 }

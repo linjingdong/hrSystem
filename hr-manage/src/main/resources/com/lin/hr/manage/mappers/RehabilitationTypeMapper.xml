@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lin.hr.manage.mappers.RehabilitationTypeMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.RehabilitationType">
+		<!--类型ID-->
+		<result column="type_id" property="typeId"  />
+		<!--类型名称-->
+		<result column="type_name" property="typeName"  />
+		<!--类型编码-->
+		<result column="type_code" property="typeCode"  />
+		<!--类型描述-->
+		<result column="description" property="description"  />
+		<!--图标URL-->
+		<result column="icon_url" property="iconUrl"  />
+		<!--排序号-->
+		<result column="sort_order" property="sortOrder"  />
+		<!--状态：1-启用，0-禁用-->
+		<result column="status" property="status"  />
+		<!--创建时间-->
+		<result column="create_time" property="createTime"  />
+		<!--更新时间-->
+		<result column="update_time" property="updateTime"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 r.type_id,r.type_name,r.type_code,r.description,r.icon_url,
+		 r.sort_order,r.status,r.create_time,r.update_time
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.typeId != null and query.typeId!=''">
+				 and  r.type_id = #{query.typeId}
+			</if>
+			<if test="query.typeName != null and query.typeName!=''">
+				 and  r.type_name = #{query.typeName}
+			</if>
+			<if test="query.typeCode != null and query.typeCode!=''">
+				 and  r.type_code = #{query.typeCode}
+			</if>
+			<if test="query.description != null and query.description!=''">
+				 and  r.description = #{query.description}
+			</if>
+			<if test="query.iconUrl != null and query.iconUrl!=''">
+				 and  r.icon_url = #{query.iconUrl}
+			</if>
+			<if test="query.sortOrder != null">
+				 and  r.sort_order = #{query.sortOrder}
+			</if>
+			<if test="query.status != null">
+				 and  r.status = #{query.status}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  r.create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.updateTime != null and query.updateTime!=''">
+				 <![CDATA[ and  r.update_time=str_to_date(#{query.updateTime}, '%Y-%m-%d') ]]>
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.typeIdFuzzy!= null  and query.typeIdFuzzy!=''">
+				 and  r.type_id like concat('%', #{query.typeIdFuzzy}, '%')
+			</if>
+			<if test="query.typeNameFuzzy!= null  and query.typeNameFuzzy!=''">
+				 and  r.type_name like concat('%', #{query.typeNameFuzzy}, '%')
+			</if>
+			<if test="query.typeCodeFuzzy!= null  and query.typeCodeFuzzy!=''">
+				 and  r.type_code like concat('%', #{query.typeCodeFuzzy}, '%')
+			</if>
+			<if test="query.descriptionFuzzy!= null  and query.descriptionFuzzy!=''">
+				 and  r.description like concat('%', #{query.descriptionFuzzy}, '%')
+			</if>
+			<if test="query.iconUrlFuzzy!= null  and query.iconUrlFuzzy!=''">
+				 and  r.icon_url like concat('%', #{query.iconUrlFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  r.create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  r.create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.updateTimeStart!= null and query.updateTimeStart!=''">
+				 <![CDATA[ and  r.update_time>=str_to_date(#{query.updateTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.updateTimeEnd!= null and query.updateTimeEnd!=''">
+				 <![CDATA[ and  r.update_time< date_sub(str_to_date(#{query.updateTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM rehabilitation_type r <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM rehabilitation_type r <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.lin.hr.manage.entity.po.RehabilitationType">
+		 INSERT INTO rehabilitation_type
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.typeId != null">
+				 type_id,
+			</if>
+			<if test="bean.typeName != null">
+				 type_name,
+			</if>
+			<if test="bean.typeCode != null">
+				 type_code,
+			</if>
+			<if test="bean.description != null">
+				 description,
+			</if>
+			<if test="bean.iconUrl != null">
+				 icon_url,
+			</if>
+			<if test="bean.sortOrder != null">
+				 sort_order,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.typeId!=null">
+				 #{bean.typeId},
+			</if>
+			<if test="bean.typeName!=null">
+				 #{bean.typeName},
+			</if>
+			<if test="bean.typeCode!=null">
+				 #{bean.typeCode},
+			</if>
+			<if test="bean.description!=null">
+				 #{bean.description},
+			</if>
+			<if test="bean.iconUrl!=null">
+				 #{bean.iconUrl},
+			</if>
+			<if test="bean.sortOrder!=null">
+				 #{bean.sortOrder},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.updateTime!=null">
+				 #{bean.updateTime},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.lin.hr.manage.entity.po.RehabilitationType">
+		 INSERT INTO rehabilitation_type
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.typeId != null">
+				 type_id,
+			</if>
+			<if test="bean.typeName != null">
+				 type_name,
+			</if>
+			<if test="bean.typeCode != null">
+				 type_code,
+			</if>
+			<if test="bean.description != null">
+				 description,
+			</if>
+			<if test="bean.iconUrl != null">
+				 icon_url,
+			</if>
+			<if test="bean.sortOrder != null">
+				 sort_order,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.typeId!=null">
+				 #{bean.typeId},
+			</if>
+			<if test="bean.typeName!=null">
+				 #{bean.typeName},
+			</if>
+			<if test="bean.typeCode!=null">
+				 #{bean.typeCode},
+			</if>
+			<if test="bean.description!=null">
+				 #{bean.description},
+			</if>
+			<if test="bean.iconUrl!=null">
+				 #{bean.iconUrl},
+			</if>
+			<if test="bean.sortOrder!=null">
+				 #{bean.sortOrder},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.updateTime!=null">
+				 #{bean.updateTime},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.typeId!=null">
+				 type_id = VALUES(type_id),
+			</if>
+			<if test="bean.typeName!=null">
+				 type_name = VALUES(type_name),
+			</if>
+			<if test="bean.typeCode!=null">
+				 type_code = VALUES(type_code),
+			</if>
+			<if test="bean.description!=null">
+				 description = VALUES(description),
+			</if>
+			<if test="bean.iconUrl!=null">
+				 icon_url = VALUES(icon_url),
+			</if>
+			<if test="bean.sortOrder!=null">
+				 sort_order = VALUES(sort_order),
+			</if>
+			<if test="bean.status!=null">
+				 status = VALUES(status),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+			<if test="bean.updateTime!=null">
+				 update_time = VALUES(update_time),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationType">
+		 INSERT INTO rehabilitation_type(
+			 type_id,
+			 type_name,
+			 type_code,
+			 description,
+			 icon_url,
+			 sort_order,
+			 status,
+			 create_time,
+			 update_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.typeId},
+				 #{item.typeName},
+				 #{item.typeCode},
+				 #{item.description},
+				 #{item.iconUrl},
+				 #{item.sortOrder},
+				 #{item.status},
+				 #{item.createTime},
+				 #{item.updateTime}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.lin.hr.manage.entity.po.RehabilitationType">
+		 INSERT INTO rehabilitation_type(
+			 type_id,
+			 type_name,
+			 type_code,
+			 description,
+			 icon_url,
+			 sort_order,
+			 status,
+			 create_time,
+			 update_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.typeId},
+				 #{item.typeName},
+				 #{item.typeCode},
+				 #{item.description},
+				 #{item.iconUrl},
+				 #{item.sortOrder},
+				 #{item.status},
+				 #{item.createTime},
+				 #{item.updateTime}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			type_id = VALUES(type_id),
+			type_name = VALUES(type_name),
+			type_code = VALUES(type_code),
+			description = VALUES(description),
+			icon_url = VALUES(icon_url),
+			sort_order = VALUES(sort_order),
+			status = VALUES(status),
+			create_time = VALUES(create_time),
+			update_time = VALUES(update_time)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.lin.hr.manage.entity.query.RehabilitationTypeQuery">
+		 UPDATE rehabilitation_type r
+ 		 <set> 
+			<if test="bean.typeId != null">
+				 type_id = #{bean.typeId},
+			</if>
+			<if test="bean.typeName != null">
+				 type_name = #{bean.typeName},
+			</if>
+			<if test="bean.typeCode != null">
+				 type_code = #{bean.typeCode},
+			</if>
+			<if test="bean.description != null">
+				 description = #{bean.description},
+			</if>
+			<if test="bean.iconUrl != null">
+				 icon_url = #{bean.iconUrl},
+			</if>
+			<if test="bean.sortOrder != null">
+				 sort_order = #{bean.sortOrder},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time = #{bean.updateTime},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete r from rehabilitation_type r
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据TypeId修改-->
+	<update id="updateByTypeId" parameterType="com.lin.hr.manage.entity.po.RehabilitationType">
+		 UPDATE rehabilitation_type
+ 		 <set> 
+			<if test="bean.typeName != null">
+				 type_name = #{bean.typeName},
+			</if>
+			<if test="bean.typeCode != null">
+				 type_code = #{bean.typeCode},
+			</if>
+			<if test="bean.description != null">
+				 description = #{bean.description},
+			</if>
+			<if test="bean.iconUrl != null">
+				 icon_url = #{bean.iconUrl},
+			</if>
+			<if test="bean.sortOrder != null">
+				 sort_order = #{bean.sortOrder},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time = #{bean.updateTime},
+			</if>
+ 		 </set>
+ 		 where type_id=#{typeId}
+	</update>
+
+	<!-- 根据TypeId删除-->
+	<delete id="deleteByTypeId">
+		delete from rehabilitation_type where type_id=#{typeId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByTypeId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from rehabilitation_type r where type_id=#{typeId}
+	</select>
+
+	<!-- 根据TypeCode修改-->
+	<update id="updateByTypeCode" parameterType="com.lin.hr.manage.entity.po.RehabilitationType">
+		 UPDATE rehabilitation_type
+ 		 <set> 
+			<if test="bean.typeId != null">
+				 type_id = #{bean.typeId},
+			</if>
+			<if test="bean.typeName != null">
+				 type_name = #{bean.typeName},
+			</if>
+			<if test="bean.description != null">
+				 description = #{bean.description},
+			</if>
+			<if test="bean.iconUrl != null">
+				 icon_url = #{bean.iconUrl},
+			</if>
+			<if test="bean.sortOrder != null">
+				 sort_order = #{bean.sortOrder},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.updateTime != null">
+				 update_time = #{bean.updateTime},
+			</if>
+ 		 </set>
+ 		 where type_code=#{typeCode}
+	</update>
+
+	<!-- 根据TypeCode删除-->
+	<delete id="deleteByTypeCode">
+		delete from rehabilitation_type where type_code=#{typeCode}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByTypeCode" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from rehabilitation_type r where type_code=#{typeCode}
+	</select>
+
+</mapper>

@@ -9,6 +9,7 @@ import com.lin.hr.common.vo.ResponseVO;
 import com.lin.hr.manage.entity.po.RehabilitationTherapist;
 import com.lin.hr.manage.entity.query.RehabilitationTherapistQuery;
 import com.lin.hr.manage.service.RehabilitationTherapistService;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,14 +25,6 @@ public class RehabilitationTherapistController extends ABaseController {
 
     @Resource
     private RehabilitationTherapistService rehabilitationTherapistService;
-
-    /**
-     * 根据条件分页查询
-     */
-    @RequestMapping("/loadDataList")
-    public ResponseVO loadDataList(RehabilitationTherapistQuery query) {
-        return getSuccessResponseVO(rehabilitationTherapistService.findListByPage(query));
-    }
 
     /**
      * 新增
@@ -86,5 +79,21 @@ public class RehabilitationTherapistController extends ABaseController {
     public ResponseVO<Object> updateTherapist(RehabilitationTherapist bean, String therapistId) {
         rehabilitationTherapistService.updateRehabilitationTherapistByTherapistId(bean, therapistId);
         return getSuccessResponseVO(null);
+    }
+
+    @GlobalInterceptor
+    @PostMapping("/addOrUpdateTherapist")
+    public ResponseVO<Object> addOrUpdateTherapist(RehabilitationTherapist bean) {
+        rehabilitationTherapistService.addOrUpdateTherapist(bean);
+        return getSuccessResponseVO("编辑成功");
+    }
+
+    /**
+     * 根据条件分页查询
+     */
+    @GlobalInterceptor
+    @PostMapping("/loadDataList")
+    public ResponseVO<Object> loadDataList(RehabilitationTherapistQuery query) {
+        return getSuccessResponseVO(rehabilitationTherapistService.findListByPage(query));
     }
 }

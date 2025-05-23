@@ -3,10 +3,12 @@ package com.lin.hr.im.controller;
 import com.lin.hr.common.annotation.GlobalInterceptor;
 import com.lin.hr.common.controller.ABaseController;
 import com.lin.hr.common.dto.TokenUserInfoDto;
+import com.lin.hr.common.exception.BusinessException;
 import com.lin.hr.common.utils.StringTools;
 import com.lin.hr.common.vo.ResponseVO;
 import com.lin.hr.im.constant.RegexpConstant;
 import com.lin.hr.im.entity.po.UserInfo;
+import com.lin.hr.im.entity.vo.account.UserInfoVo;
 import com.lin.hr.im.service.UserInfoService;
 import com.lin.hr.im.websocket.utils.ChannelContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,11 +55,15 @@ public class UserInfoController extends ABaseController {
 
     @PostMapping("/updatePassword")
     @GlobalInterceptor
-    public ResponseVO<Object> updatePassword(@NotBlank @Pattern(regexp = RegexpConstant.REGEX_PASSWORD) String password) {
+    public ResponseVO<Object> updatePassword(@NotBlank @Pattern(regexp = RegexpConstant.REGEX_PASSWORD) String newPassword, String password) {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo();
-        UserInfo userInfo = new UserInfo();
-        userInfo.setPassword(StringTools.encodeMd5(password));
-        userInfoService.updateUserInfoByUserId(userInfo, tokenUserInfo.getUserId());
+        UserInfo updateUserInfo = new UserInfo();
+        UserInfo userInfo = userInfoService.getUserInfoByUserId(tokenUserInfo.getUserId());
+        if (!StringTools.verifyMd5(password, userInfo.getPassword())) {
+            throw new BusinessException("旧密码不正确！");
+        }
+        updateUserInfo.setPassword(StringTools.encodeMd5(newPassword));
+        userInfoService.updateUserInfoByUserId(updateUserInfo, tokenUserInfo.getUserId());
         // 强制退出，重新登录
         channelContextUtils.closeContext(tokenUserInfo.getUserId());
         return getSuccessResponseVO(null);

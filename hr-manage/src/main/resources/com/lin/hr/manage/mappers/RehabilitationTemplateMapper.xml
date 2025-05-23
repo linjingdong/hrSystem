@@ -327,9 +327,9 @@
 
     <!-- 根据PrimaryKey获取对象-->
     <select id="selectByTemplateId" resultMap="base_result_map">
-        select
-        <include refid="base_column_list"/>
-        from rehabilitation_template r where template_id=#{templateId}
+        select *
+        from rehabilitation_template r
+        where template_id = #{templateId}
     </select>
 
 </mapper>

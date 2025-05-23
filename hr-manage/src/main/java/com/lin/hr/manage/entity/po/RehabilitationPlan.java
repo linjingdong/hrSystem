@@ -2,9 +2,9 @@ package com.lin.hr.manage.entity.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lin.hr.common.enums.DateTimePatternEnum;
 import com.lin.hr.common.utils.DateUtil;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -71,6 +71,16 @@ public class RehabilitationPlan implements Serializable {
 	 * 模板快照（JSON格式）
 	 */
 	private String templateSnapshotJson;
+
+	/**
+	 * 患者姓名
+	 */
+	private String username;
+
+	/**
+	 * 医生姓名
+	 */
+	private String doctorname;
 
 
 	public void setPlanId(String planId){
@@ -153,8 +163,24 @@ public class RehabilitationPlan implements Serializable {
 		return this.templateSnapshotJson;
 	}
 
+	public void setUsername(String username){
+		this.username = username;
+	}
+
+	public String getUsername(){
+		return this.username;
+	}
+
+	public void setDoctorname(String doctorname){
+		this.doctorname = doctorname;
+	}
+
+	public String getDoctorname(){
+		return this.doctorname;
+	}
+
 	@Override
 	public String toString (){
-		return "计划ID:"+(planId == null ? "空" : planId)+"，患者ID:"+(userId == null ? "空" : userId)+"，康复师ID:"+(doctorId == null ? "空" : doctorId)+"，来源模板ID:"+(templateId == null ? "空" : templateId)+"，计划开始日期:"+(startDate == null ? "空" : DateUtil.format(startDate, DateTimePatternEnum.YYYY_MM_DD.getPattern()))+"，计划结束日期:"+(endDate == null ? "空" : DateUtil.format(endDate, DateTimePatternEnum.YYYY_MM_DD.getPattern()))+"，个性化备注:"+(customNote == null ? "空" : customNote)+"，状态（0未开始 1进行中 2已完成 3中止）:"+(status == null ? "空" : status)+"，创建时间:"+(createTime == null ? "空" : DateUtil.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，模板快照（JSON格式）:"+(templateSnapshotJson == null ? "空" : templateSnapshotJson);
+		return "计划ID:"+(planId == null ? "空" : planId)+"，患者ID:"+(userId == null ? "空" : userId)+"，康复师ID:"+(doctorId == null ? "空" : doctorId)+"，来源模板ID:"+(templateId == null ? "空" : templateId)+"，计划开始日期:"+(startDate == null ? "空" : DateUtil.format(startDate, DateTimePatternEnum.YYYY_MM_DD.getPattern()))+"，计划结束日期:"+(endDate == null ? "空" : DateUtil.format(endDate, DateTimePatternEnum.YYYY_MM_DD.getPattern()))+"，个性化备注:"+(customNote == null ? "空" : customNote)+"，状态（0未开始 1进行中 2已完成 3中止）:"+(status == null ? "空" : status)+"，创建时间:"+(createTime == null ? "空" : DateUtil.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，模板快照（JSON格式）:"+(templateSnapshotJson == null ? "空" : templateSnapshotJson)+"，患者姓名:"+(username == null ? "空" : username)+"，医生姓名:"+(doctorname == null ? "空" : doctorname);
 	}
 }

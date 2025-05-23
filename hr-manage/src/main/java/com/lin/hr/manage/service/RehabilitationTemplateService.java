@@ -82,4 +82,6 @@ public interface RehabilitationTemplateService {
 	RehabilitationTemplateVo getTemplateById(String templateId);
 
 	void updateById(String templateId, RehabilitationTemplateDto dto);
+
+	List<RehabilitationTemplateVo> getTemplateByTypeId(String typeId);
 }

@@ -83,6 +83,20 @@ public class RehabilitationPlanQuery extends BaseParam {
 
 	private String templateSnapshotJsonFuzzy;
 
+	/**
+	 * 患者姓名
+	 */
+	private String username;
+
+	private String usernameFuzzy;
+
+	/**
+	 * 医生姓名
+	 */
+	private String doctorname;
+
+	private String doctornameFuzzy;
+
 
 	public void setPlanId(String planId){
 		this.planId = planId;
@@ -255,6 +269,38 @@ public class RehabilitationPlanQuery extends BaseParam {
 
 	public String getTemplateSnapshotJsonFuzzy(){
 		return this.templateSnapshotJsonFuzzy;
+	}
+
+	public void setUsername(String username){
+		this.username = username;
+	}
+
+	public String getUsername(){
+		return this.username;
+	}
+
+	public void setUsernameFuzzy(String usernameFuzzy){
+		this.usernameFuzzy = usernameFuzzy;
+	}
+
+	public String getUsernameFuzzy(){
+		return this.usernameFuzzy;
+	}
+
+	public void setDoctorname(String doctorname){
+		this.doctorname = doctorname;
+	}
+
+	public String getDoctorname(){
+		return this.doctorname;
+	}
+
+	public void setDoctornameFuzzy(String doctornameFuzzy){
+		this.doctornameFuzzy = doctornameFuzzy;
+	}
+
+	public String getDoctornameFuzzy(){
+		return this.doctornameFuzzy;
 	}
 
 }

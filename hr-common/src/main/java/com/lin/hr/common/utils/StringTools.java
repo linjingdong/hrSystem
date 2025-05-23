@@ -79,6 +79,14 @@ public class StringTools {
         return StringUtils.isBlank(originString) ? null : DigestUtils.md5Hex(originString);
     }
 
+    public static boolean verifyMd5(String original, String md5Hash) {
+        if (StringUtils.isBlank(original) || StringUtils.isBlank(md5Hash)) {
+            return false;
+        }
+        String calculatedHash = DigestUtils.md5Hex(original);
+        return calculatedHash.equals(md5Hash);
+    }
+
     /**
      * 清除注入标签
      */

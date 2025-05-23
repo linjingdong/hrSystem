@@ -39,13 +39,13 @@ public class AdminSettingController extends ABaseController {
     private AppConfig appConfig;
 
     @PostMapping("/getSysSetting")
-    @GlobalInterceptor(checkAdmin = true)
+    @GlobalInterceptor
     public ResponseVO<Object> getSysSetting() {
         return getSuccessResponseVO(redisComponent.getSysSetting());
     }
 
     @PostMapping("/saveSysSetting")
-    @GlobalInterceptor(checkAdmin = true)
+    @GlobalInterceptor
     public ResponseVO<Object> saveSysSetting(SysSettingDto sysSettingDto, MultipartFile robotFile, MultipartFile robotCover) {
         if (robotFile != null) {
             String baseFolder = appConfig.getProjectFolder() + FileConstant.FILE_FOLDER_FILE;

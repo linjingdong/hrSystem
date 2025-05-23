@@ -4,7 +4,37 @@
 <mapper namespace="com.lin.hr.manage.mappers.RehabilitationTherapistMapper">
 
 	<!--实体映射-->
-	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.po.RehabilitationTherapist">
+	<resultMap id="base_result_map" type="com.lin.hr.manage.entity.vo.RehabilitationTherapistVo">
+		<!--康复师ID，关联user_info.user_id-->
+		<result column="therapist_id" property="therapistId"  />
+		<!--擅长的康复类型-->
+		<result column="rehab_type" property="rehabType"  />
+		<!--擅长的康复类型-->
+		<result column="type_name" property="typeName"  />
+		<!--擅长的康复类型-->
+		<result column="username" property="userName"  />
+		<!--擅长领域-->
+		<result column="specialization" property="specialization"  />
+		<!--职业资质证书信息-->
+		<result column="qualification" property="qualification"  />
+		<!--从业年限-->
+		<result column="experience_years" property="experienceYears"  />
+		<!--个人简介-->
+		<result column="introduction" property="introduction"  />
+		<!--联系电话-->
+		<result column="phone" property="phone"  />
+		<!--联系邮箱-->
+		<result column="email" property="email"  />
+		<!--在职状态（0离职 1在职）-->
+		<result column="status" property="status"  />
+		<!--创建时间-->
+		<result column="create_time" property="createTime"  />
+		<!--最后更新时间-->
+		<result column="update_time" property="updateTime"  />
+	</resultMap>
+
+	<!--实体映射-->
+	<resultMap id="base_result_map1" type="com.lin.hr.manage.entity.po.RehabilitationTherapist">
 		<!--康复师ID，关联user_info.user_id-->
 		<result column="therapist_id" property="therapistId"  />
 		<!--擅长的康复类型-->
@@ -122,14 +152,23 @@
 	</sql>
 
 	<!-- 查询集合-->
-	<select id="selectList" resultMap="base_result_map" >
-		 SELECT <include refid="base_column_list" /> FROM rehabilitation_therapist r <include refid="query_condition" />
-		 <if test="query.orderBy!=null">
-			 order by ${query.orderBy}
-		 </if>
-		 <if test="query.simplePage!=null">
-			 limit #{query.simplePage.start},#{query.simplePage.end}
-		 </if>
+	<select id="selectList" resultMap="base_result_map">
+		SELECT
+		r.therapist_id,r.rehab_type,r.specialization,r.qualification,r.experience_years,
+		r.introduction,r.phone,r.email,r.status,r.create_time,
+		r.update_time,t.type_name,u.username
+		FROM rehabilitation_therapist r
+		LEFT JOIN rehabilitation_type t
+		ON r.rehab_type = t.type_id
+		LEFT JOIN user_info u
+		ON r.therapist_id = u.user_id
+		<include refid="query_condition"/>
+		<if test="query.orderBy!=null">
+			order by ${query.orderBy}
+		</if>
+		<if test="query.simplePage!=null">
+			limit #{query.simplePage.start},#{query.simplePage.end}
+		</if>
 	</select>
 
 	<!-- 查询数量-->
@@ -490,7 +529,7 @@
 	</delete>
 
 	<!-- 根据PrimaryKey获取对象-->
-	<select id="selectByTherapistId" resultMap="base_result_map">
+	<select id="selectByTherapistId" resultMap="base_result_map1">
 		select
 		<include refid="base_column_list"/>
 		from rehabilitation_therapist r

@@ -23,7 +23,8 @@ public enum MessageTypeEnum {
     CONTACT_NAME_UPDATE(10, "", "更新昵称"),
     LEAVE_GROUP(11, "%s退出了群聊", "退出群聊"),
     REMOVE_GROUP(12, "%s被管理员移出了群聊", "被管理员移出了群聊"),
-    ADD_FRIEND_SELF(13, "", "添加好友招呼消息发送给自己");
+    ADD_FRIEND_SELF(13, "", "添加好友招呼消息发送给自己"),
+    CREATE_PLAN(14, "%s创建了康复训练计划，请查看", "创建康复训练计划");
 
     private final Integer type;
     private final String initMessage;

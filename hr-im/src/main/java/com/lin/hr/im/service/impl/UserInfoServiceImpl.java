@@ -29,10 +29,6 @@ import com.lin.hr.im.mappers.UserContactMapper;
 import com.lin.hr.im.service.ChatSessionUserService;
 import com.lin.hr.im.service.UserContactService;
 import com.lin.hr.im.websocket.utils.MessageHandler;
-import com.lin.hr.manage.entity.enums.therapist.TherapistStatusEnum;
-import com.lin.hr.manage.entity.po.RehabilitationTherapist;
-import com.lin.hr.manage.entity.query.RehabilitationTherapistQuery;
-import com.lin.hr.manage.mappers.RehabilitationTherapistMapper;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -60,8 +56,6 @@ public class UserInfoServiceImpl implements UserInfoService {
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
     @Autowired
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
-    @Autowired
-    private RehabilitationTherapistMapper<RehabilitationTherapist, RehabilitationTherapistQuery> therapistMapper;
     @Autowired
     private UserContactService userContactService;
     @Resource
@@ -247,14 +241,6 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfo.setCreateTime(new Date());
         this.userInfoMapper.insert(userInfo);
 
-        if (UserTypeEnum.DOCTOR.getCode().equals(userType)) {
-            RehabilitationTherapist therapist = new RehabilitationTherapist();
-            therapist.setTherapistId(userInfo.getUserId());
-            therapist.setPhone(userInfo.getPhone());
-            therapist.setCreateTime(new Date());
-            therapist.setStatus(TherapistStatusEnum.ON_JOB.getStatus());
-            therapistMapper.insert(therapist);
-        }
         userContactService.addContact4Robot(userInfo.getUserId());
     }
 

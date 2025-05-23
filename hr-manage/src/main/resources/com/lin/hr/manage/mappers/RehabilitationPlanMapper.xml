@@ -25,14 +25,18 @@
 		<result column="create_time" property="createTime"  />
 		<!--模板快照（JSON格式）-->
 		<result column="template_snapshot_json" property="templateSnapshotJson"  />
+		<!--患者姓名-->
+		<result column="username" property="username"  />
+		<!--医生姓名-->
+		<result column="doctorName" property="doctorname"  />
 	</resultMap>
 
 
 	<!-- 通用查询结果列-->
 	<sql id="base_column_list">
 		 r.plan_id,r.user_id,r.doctor_id,r.template_id,r.start_date,
-		 r.end_date,r.custom_note,r.status,r.create_time,r.template_snapshot_json
-		 
+		 r.end_date,r.custom_note,r.status,r.create_time,r.template_snapshot_json,
+		 r.username,r.doctorName
 	</sql>
 
 	<sql id="base_condition_filed">
@@ -65,6 +69,12 @@
 			</if>
 			<if test="query.templateSnapshotJson != null and query.templateSnapshotJson!=''">
 				 and  r.template_snapshot_json = #{query.templateSnapshotJson}
+			</if>
+			<if test="query.username != null and query.username!=''">
+				 and  r.username = #{query.username}
+			</if>
+			<if test="query.doctorname != null and query.doctorname!=''">
+				 and  r.doctorName = #{query.doctorname}
 			</if>
 	</sql>
 	<!-- 通用条件列-->
@@ -113,6 +123,12 @@
 			</if>
 			<if test="query.templateSnapshotJsonFuzzy!= null  and query.templateSnapshotJsonFuzzy!=''">
 				 and  r.template_snapshot_json like concat('%', #{query.templateSnapshotJsonFuzzy}, '%')
+			</if>
+			<if test="query.usernameFuzzy!= null  and query.usernameFuzzy!=''">
+				 and  r.username like concat('%', #{query.usernameFuzzy}, '%')
+			</if>
+			<if test="query.doctornameFuzzy!= null  and query.doctornameFuzzy!=''">
+				 and  r.doctorName like concat('%', #{query.doctornameFuzzy}, '%')
 			</if>
 	 </where>
 	</sql>
@@ -167,6 +183,12 @@
 			<if test="bean.templateSnapshotJson != null">
 				 template_snapshot_json,
 			</if>
+			<if test="bean.username != null">
+				 username,
+			</if>
+			<if test="bean.doctorname != null">
+				 doctorName,
+			</if>
 		 </trim>
 		 <trim prefix="values (" suffix=")" suffixOverrides="," >
 			<if test="bean.planId!=null">
@@ -198,6 +220,12 @@
 			</if>
 			<if test="bean.templateSnapshotJson!=null">
 				 #{bean.templateSnapshotJson},
+			</if>
+			<if test="bean.username!=null">
+				 #{bean.username},
+			</if>
+			<if test="bean.doctorname!=null">
+				 #{bean.doctorname},
 			</if>
 		 </trim>
 	</insert>
@@ -236,6 +264,12 @@
 			<if test="bean.templateSnapshotJson != null">
 				 template_snapshot_json,
 			</if>
+			<if test="bean.username != null">
+				 username,
+			</if>
+			<if test="bean.doctorname != null">
+				 doctorName,
+			</if>
 		 </trim>
 		 <trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="bean.planId!=null">
@@ -267,6 +301,12 @@
 			</if>
 			<if test="bean.templateSnapshotJson!=null">
 				 #{bean.templateSnapshotJson},
+			</if>
+			<if test="bean.username!=null">
+				 #{bean.username},
+			</if>
+			<if test="bean.doctorname!=null">
+				 #{bean.doctorname},
 			</if>
 		 </trim>
 		 on DUPLICATE key update 
@@ -301,6 +341,12 @@
 			<if test="bean.templateSnapshotJson!=null">
 				 template_snapshot_json = VALUES(template_snapshot_json),
 			</if>
+			<if test="bean.username!=null">
+				 username = VALUES(username),
+			</if>
+			<if test="bean.doctorname!=null">
+				 doctorName = VALUES(doctorName),
+			</if>
 		 </trim>
 	</insert>
 
@@ -316,7 +362,9 @@
 			 custom_note,
 			 status,
 			 create_time,
-			 template_snapshot_json
+			 template_snapshot_json,
+			 username,
+			 doctorName
 		 )values
 		 <foreach collection="list" item="item" separator=",">
 			 (
@@ -329,7 +377,9 @@
 				 #{item.customNote},
 				 #{item.status},
 				 #{item.createTime},
-				 #{item.templateSnapshotJson}
+				 #{item.templateSnapshotJson},
+				 #{item.username},
+				 #{item.doctorname}
 			 )
 		 </foreach>
 	</insert>
@@ -346,7 +396,9 @@
 			 custom_note,
 			 status,
 			 create_time,
-			 template_snapshot_json
+			 template_snapshot_json,
+			 username,
+			 doctorName
 		 )values
 		 <foreach collection="list" item="item" separator=",">
 			 (
@@ -359,7 +411,9 @@
 				 #{item.customNote},
 				 #{item.status},
 				 #{item.createTime},
-				 #{item.templateSnapshotJson}
+				 #{item.templateSnapshotJson},
+				 #{item.username},
+				 #{item.doctorname}
 			 )
 		 </foreach>
 			on DUPLICATE key update 
@@ -372,7 +426,9 @@
 			custom_note = VALUES(custom_note),
 			status = VALUES(status),
 			create_time = VALUES(create_time),
-			template_snapshot_json = VALUES(template_snapshot_json)
+			template_snapshot_json = VALUES(template_snapshot_json),
+			username = VALUES(username),
+			doctorName = VALUES(doctorName)
 	</insert>
 
 	<!--多条件修改-->
@@ -408,6 +464,12 @@
 			</if>
 			<if test="bean.templateSnapshotJson != null">
 				 template_snapshot_json = #{bean.templateSnapshotJson},
+			</if>
+			<if test="bean.username != null">
+				 username = #{bean.username},
+			</if>
+			<if test="bean.doctorname != null">
+				 doctorName = #{bean.doctorname},
 			</if>
  		 </set>
  		 <include refid="query_condition" />
@@ -449,6 +511,12 @@
 			</if>
 			<if test="bean.templateSnapshotJson != null">
 				 template_snapshot_json = #{bean.templateSnapshotJson},
+			</if>
+			<if test="bean.username != null">
+				 username = #{bean.username},
+			</if>
+			<if test="bean.doctorname != null">
+				 doctorName = #{bean.doctorname},
 			</if>
  		 </set>
  		 where plan_id=#{planId}
